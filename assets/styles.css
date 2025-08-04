@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Cormorant+SC:wght@400;600&display=swap');
+
+:root {
+    --ottoman-ivory: #EFEBD6;
+    --ottoman-gold: #B08D57;
+    --ottoman-red: #7C0A02;
+    --ottoman-dark-red: #300000;
+    --ottoman-darker-red: #200000;
+    
+    --font-family-title: "Cormorant SC", "Georgia", serif;
+    --font-family-other: "Cormorant Garamond", "Georgia", serif;
+}
+
+/* navbar */
+.navbar-header {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    margin: 0px;
+    padding: 0px;
+    font-family: var(--font-family-other);
+    background-color: var(--ottoman-dark-red);
+    box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.container {
+    padding: 0rem;
+    margin: 0rem;
+}
+
+/* navbar - top layer */
+.navbar-top-layer {
+    padding: 0.75rem 0.75rem;
+}
+
+.navbar-logo {
+    height: 3rem;
+    width: auto;
+    margin-left: 0rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.navbar-title {
+    font-family: var(--font-family-title);
+    font-size: 1.5rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.navbar-top-layer a, .navbar-top-layer a:hover {
+    text-decoration: none;
+    color: var(--ottoman-ivory);
+}
+
+/* navbar - separators */
+.navbar-horizontal-separator {
+    height: 1px;
+    margin-left: 16rem;
+    margin-right: 16rem;
+    background-color: var(--ottoman-gold);
+    opacity: 0.4;
+}
+
+.navbar-vertical-separator {
+    height: 1.5rem;
+    width: 1px;
+    background-color: var(--ottoman-gold);
+    margin: 0px 0.5rem;
+    opacity: 0.4;
+}
+
+/* navbar - bottom layer */
+.navbar-bottom-layer {
+    padding: 0px;
+    margin: auto;
+    background-color: var(--ottoman-black) !important;
+}
+
+.navbar-nav {
+    margin: auto;
+    align-items: center;
+}
+
+/* navbar - items */
+.navbar-bottom-layer .nav-link,
+.navbar-bottom-layer .dropdown-toggle {
+    color: var(--ottoman-ivory);
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 0.75rem 0.75rem 0rem 0rem;
+    transition: background-color 0.2s ease-in-out, border-radius 0.2s ease-in-out;
+}
+.navbar-bottom-layer .nav-link:hover {
+    text-decoration: underline;
+}
+.navbar-bottom-layer .nav-item:hover .dropdown-toggle {
+    background-color: var(--ottoman-darker-red);
+}
+
+/* navbar - dropdown menu and items */
+.navbar-dropdown-menu .dropdown-menu {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    margin: 0rem;
+    padding: 0.25rem;
+    background-color: var(--ottoman-darker-red);
+    border: transparent;
+    border-radius: 0rem 0rem 0.75rem 0.75rem;
+    font-size: 0.85rem;
+    box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+.nav-item:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+}
+.navbar-dropdown-menu .dropdown-item {
+    background-color: transparent;
+    color: var(--ottoman-ivory) !important;
+    padding: 0.75rem 1rem;
+}
+.navbar-dropdown-menu .dropdown-item:hover {
+    text-decoration: underline;
+}

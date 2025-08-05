@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from data_loader import employee_dataset, agency_dataset
+from utils.data_loader import employee_dataset, agency_dataset
 
 def employee_count(start: int=1856, end: int=1922, end_inclusive: bool=False):
     print(employee_dataset.dtypes)

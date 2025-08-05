@@ -2,13 +2,35 @@
 
 :root {
     --ottoman-ivory: #EFEBD6;
+    --ottoman-sandstone: #dfc6a0;
     --ottoman-gold: #B08D57;
+    --ottoman-blue: #00587A;
+    --ottoman-dark-blue: #00487A;
     --ottoman-red: #7C0A02;
     --ottoman-dark-red: #300000;
     --ottoman-darker-red: #200000;
     
     --font-family-title: "Cormorant SC", "Georgia", serif;
     --font-family-other: "Cormorant Garamond", "Georgia", serif;
+}
+
+/* general */
+.page-container {
+    background-color: var(--ottoman-ivory);
+    min-height: 100vh;
+    margin: 0px;
+    padding: 0px;
+    font-family: var(--font-family-title);
+}
+
+.container {
+    padding: 0px;
+    margin: 0px;
+}
+
+::selection {
+    color: var(--ottoman-gold);
+    background-color: var(--ottoman-blue);
 }
 
 /* navbar */
@@ -21,11 +43,6 @@
     font-family: var(--font-family-other);
     background-color: var(--ottoman-dark-red);
     box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
-}
-
-.container {
-    padding: 0rem;
-    margin: 0rem;
 }
 
 /* navbar - top layer */
@@ -87,7 +104,7 @@
 .navbar-bottom-layer .dropdown-toggle {
     color: var(--ottoman-ivory);
     padding: 0.75rem 1rem;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
     background-color: transparent;
     border-color: transparent;
@@ -99,6 +116,12 @@
 }
 .navbar-bottom-layer .nav-item:hover .dropdown-toggle {
     background-color: var(--ottoman-darker-red);
+}
+.navbar-bottom-layer .nav-item .dropdown-toggle:active {
+    outline: transparent;
+    color: var(--ottoman-ivory);
+    background-color: var(--ottoman-darker-red);
+    border-color: transparent;
 }
 
 /* navbar - dropdown menu and items */
@@ -112,7 +135,7 @@
     background-color: var(--ottoman-darker-red);
     border: transparent;
     border-radius: 0rem 0rem 0.75rem 0.75rem;
-    font-size: 0.85rem;
+    font-size: 1rem;
     box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
 }
 .nav-item:hover .dropdown-menu {
@@ -126,4 +149,124 @@
 }
 .navbar-dropdown-menu .dropdown-item:hover {
     text-decoration: underline;
+}
+
+/* content area */
+.introduction-container {
+    margin: auto;
+    padding-top: 7.5rem;
+}
+
+.introduction-title {
+    color: var(--ottoman-gold);
+    font-family: var(--font-family-title);
+    font-size: 3rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    line-height: 3rem;
+}
+
+.section-container {
+    margin: 0px;
+    padding: 0px;
+}
+
+.figure-container {
+    background-color: var(--ottoman-ivory);
+    padding: 1rem;
+    margin: 2.5rem 0px;
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+    border: 2px solid var(--ottoman-gold);
+    min-height: 35rem;
+}
+
+.figure-filter-container {
+    background-color: var(--ottoman-sandstone);
+    margin-top: 2.5rem;
+    padding: 1.25rem 5rem;
+}
+
+.filter-title {
+    color: var(--ottoman-gold);
+    text-align: center;
+    font-family: var(--font-family-title);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+}
+
+.content-container {
+    padding: 0px 15rem;
+}
+
+.content-title {
+    scroll-margin-top: 10rem;
+    color: var(--ottoman-gold);
+    text-align: center;
+    font-family: var(--font-family-title);
+    font-size: 3rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    line-height: 3rem;
+}
+
+.content-body {
+    color: var(--ottoman-darker-red);
+    font-family: var(--font-family-other);
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.content-horizontal-separator {
+    height: 1px;
+    margin: 3rem 12rem;
+    background-color: var(--ottoman-gold);
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+    opacity: 0.4;
+}
+
+.content-vertical-separator {
+    width: 1px;
+    height: 90%;
+    margin: 2rem 3rem;
+    background-color: var(--ottoman-gold);
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+    opacity: 0.4;
+}
+
+.table-of-contents-title {
+    color: var(--ottoman-gold);
+    font-family: var(--font-family-title);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 3rem;
+}
+
+.table-of-contents-section-link {
+    color: var(--ottoman-gold);
+    font-family: var(--font-family-title);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 3rem;
+    text-decoration: none;
+}
+.table-of-contents-section-link:hover {
+    text-decoration: underline;
+}
+
+.table-of-contents-horizontal-separator {
+    height: 1px;
+    margin: 1rem 1rem;
+    background-color: var(--ottoman-gold);
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+    opacity: 0.4;
+}
+
+.table-of-contents-container {
+    background-color: var(--ottoman-sandstone);
+    padding: 1rem;
+    margin: 1rem 7.5rem;
+    box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+    border: 2px solid var(--ottoman-gold);
+    max-width: 30rem;
 }

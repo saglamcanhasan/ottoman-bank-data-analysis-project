@@ -10,7 +10,7 @@ def Dropdown(label: str, items: dict):
     )
 
 # navbar widget
-def Navbar(filter_widget=list()):
+def Navbar():
     return html.Header([
         # top layer
         html.Div(
@@ -25,10 +25,9 @@ def Navbar(filter_widget=list()):
                             href="/"
                         ),
                         className="container"
-                    ),
-                    # filter container
-                    dbc.Col(dbc.Row(filter_widget, className="filter-options"), className="container"),
-                ], className="container")
+                    )],
+                    className="container"
+                )
             ),
             className="navbar-top-layer"
         ),
@@ -38,53 +37,54 @@ def Navbar(filter_widget=list()):
 
         # bottom layer
         dbc.Navbar(
-                    dbc.Nav([
-                        # history group
-                        dbc.NavItem(
-                            Dropdown(
-                                label="Institutional Dashboard",
-                                items={
-                                    "Historical Overview": "/historical-overview",
-                                    "Geographic Footprint": "/geographic-footprint",
-                                    "Workforce Demographics": "/workforce-demographics",
-                                    }
-                                )
-                            ),
+            dbc.Nav([
+                # history group
+                dbc.NavItem(
+                    Dropdown(
+                        label="Institutional Dashboard",
+                        items={
+                            "Historical Overview": "/historical-overview",
+                            "Geographic Footprint": "/geographic-footprint",
+                            "Workforce Demographics": "/workforce-demographics",
+                            }
+                        )
+                    ),
 
-                        # vertical seperator
-                        html.Div(className="navbar-vertical-separator"),
+                # vertical seperator
+                html.Div(className="navbar-vertical-separator"),
 
-                        # agency group
-                        dbc.NavItem(
-                            Dropdown(
-                                label="Agency Dashboard",
-                                items={
-                                    "Agency Performance": "/agency-performance",
-                                    "Employee Transfers": "/employee-transfers",
-                                    }
-                                )
-                            ),
+                # agency group
+                dbc.NavItem(
+                    Dropdown(
+                        label="Agency Dashboard",
+                        items={
+                            "Agency Performance": "/agency-performance",
+                            "Employee Transfers": "/employee-transfers",
+                            }
+                        )
+                    ),
 
-                        # vertical seperator
-                        html.Div(className="navbar-vertical-separator"),
+                # vertical seperator
+                html.Div(className="navbar-vertical-separator"),
 
-                        # employee group
-                        dbc.NavItem(
-                            Dropdown(
-                                label="Personnel Dashboard",
-                                items={
-                                    "Employee Profiles": "/employee-profiles",
-                                    "Co-worker Network": "/coworker-network",
-                                    }
-                                )
-                            ),
-                        # vertical seperator
-                        html.Div(className="navbar-vertical-separator"),
+                # employee group
+                dbc.NavItem(
+                    Dropdown(
+                        label="Personnel Dashboard",
+                        items={
+                            "Employee Profiles": "/employee-profiles",
+                            "Co-worker Network": "/coworker-network",
+                            }
+                        )
+                    ),
+                # vertical seperator
+                html.Div(className="navbar-vertical-separator"),
 
-                        # information group
-                        dbc.NavItem(dbc.NavLink("About Us", href="/about-us")),
-                        dbc.NavItem(dbc.NavLink("About Dataset", href="/about-dataset")),
-                    ], className="navbar-nav"),
+                # information group
+                dbc.NavItem(dbc.NavLink("About Us", href="/about-us")),
+                dbc.NavItem(dbc.NavLink("About Dataset", href="/about-dataset"))],
+                className="navbar-nav"
+            ),
             className="navbar-bottom-layer"
         ),
     ], className="navbar-header")

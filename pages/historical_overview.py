@@ -1,8 +1,11 @@
 import dash
-from dash import html
+from utils.graph import plot
+from utils.historical_overview_analysis import open_agencies
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
 dash.register_page(__name__, path="/historical-overview")
+
+agency_number_fig = plot(open_agencies(), "Year", "Agency Count", "Number of Agencies vs Year")
 
 sections = ["Total Employees", "Number of Agencies", "Employee Turnover"]
 
@@ -33,7 +36,7 @@ def layout():
             "This line chart tracks the growth of the bank's physical presence by showing the total number of active agencies over time. Compare this with the employee chart to see if workforce growth was driven by opening new branches or expanding existing ones.",
             {
                 "agency-number": {
-                    "figure": {},
+                    "figure": agency_number_fig,
                     "filter": filter("agency-number", True, True, True, True, True)
                 }
             }

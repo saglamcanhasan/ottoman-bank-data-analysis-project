@@ -1,5 +1,6 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc, get_asset_url
+import dash_cytoscape as cyto
 from utils.filter_parameters import agencies, grouped_functions, religions, ids, start, end
 
 def introduction(title: str, description: str, right_widget=list()):
@@ -52,7 +53,7 @@ def vertical_separator():
 def horizontal_separator():
     return html.Div(className="content-horizontal-separator")
 
-def section(title: str, description: str, figures: dict=dict()):
+def section(title: str, description: str, figures: dict=dict(), is_cytoscape=False):
     figure_rows = list()
     for figure_id in figures:
         # extract figure info
@@ -64,7 +65,26 @@ def section(title: str, description: str, figures: dict=dict()):
         # generate a row
         cols = list()
 
-        cols.append(dbc.Col(dcc.Loading(dcc.Graph(figure=figure, id=figure_id, className="graph"), type="dot", color="#00487A", id="loader"), width=8, className="figure-container", id="deneme"))
+        if is_cytoscape: # Render Cytoscape with passed elements
+            graph_component = cyto.Cytoscape(
+                id=figure_id,
+                style={'width': '100%', 'height': '100%'},
+                layout={'name': 'cose', 'animate': False},
+                elements=figure,  # assuming figure is cyto elements list here
+                stylesheet=[
+                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)"}},
+                    {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#B08D57"}},                   
+                ],
+            )
+        else: # Usual Plotly Graph inside Loading
+            graph_component = dcc.Loading(
+                dcc.Graph(figure=figure, id=figure_id, className="graph"),
+                type="dot",
+                color="#00487A",
+                id="loader"
+            )
+            
+        cols.append(dbc.Col(graph_component, width=8, className="figure-container", id="deneme"))
         if filter is not None:
             cols.append(dbc.Col(vertical_separator(), width=1))
             cols.append(dbc.Col(filter, width=3))
@@ -100,6 +120,7 @@ def section(title: str, description: str, figures: dict=dict()):
         )
 
     return dbc.Container(containers, className="section-container", fluid=True)
+
 
 def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
     filter_rows = []

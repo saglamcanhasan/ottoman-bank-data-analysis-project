@@ -1,5 +1,6 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc, get_asset_url
+from utils.filter_parameters import agencies, grouped_functions, religions, ids, start, end
 
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([
@@ -63,7 +64,7 @@ def section(title: str, description: str, figures: dict=dict()):
         # generate a row
         cols = list()
 
-        cols.append(dbc.Col(dcc.Graph(figure=figure, id=figure_id, className="graph"), width=8, className="figure-container"))
+        cols.append(dbc.Col(dcc.Loading(dcc.Graph(figure=figure, id=figure_id, className="graph"), type="dot", color="#00487A", id="loader"), width=8, className="figure-container", id="deneme"))
         if filter is not None:
             cols.append(dbc.Col(vertical_separator(), width=1))
             cols.append(dbc.Col(filter, width=3))
@@ -100,11 +101,59 @@ def section(title: str, description: str, figures: dict=dict()):
 
     return dbc.Container(containers, className="section-container", fluid=True)
 
-def filter(filter_id: str, id: bool, agency: bool, nationality: bool, religion: bool, time_period: bool):
+def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
     filter_rows = []
 
+    if agency:
+        filtered_options = agencies.tolist()
+        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": agency, "value": agency} for agency in filtered_options]
+        filter_rows.append(
+            dbc.Row([
+                dbc.Label("Agency", html_for=f"{filter_id}-agency-dropdown", className="filter-title"),
+                dcc.Dropdown(
+                    id=f"{filter_id}-agency-dropdown",
+                    options=final_options,
+                    multi=True,
+                    placeholder="select agencies",
+                    className="filter-dropdown"
+                )
+            ])
+        )
+
+    if grouped_function:
+        filtered_options = grouped_functions.tolist()
+        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": grouped_function, "value": grouped_function} for grouped_function in filtered_options]
+        filter_rows.append(
+            dbc.Row([
+                dbc.Label("Grouped Function", html_for=f"{filter_id}-grouped_function-dropdown", className="filter-title"),
+                dcc.Dropdown(
+                    id=f"{filter_id}-grouped_function-dropdown",
+                    options=final_options,
+                    multi=True,
+                    placeholder="select grouped functions",
+                    className="filter-dropdown"
+                )
+            ])
+        )
+
+    if religion:
+        filtered_options = religions.tolist()
+        filtered_options.remove("Other")
+        final_options = [{"label": "Other", "value": "Other"}, {"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": religion, "value": religion} for religion in filtered_options]
+        filter_rows.append(
+            dbc.Row([
+                dbc.Label("Religion", html_for=f"{filter_id}-religion-dropdown", className="filter-title"),
+                dcc.Dropdown(
+                    id=f"{filter_id}-religion-dropdown",
+                    options=final_options,
+                    multi=True,
+                    placeholder="select religions",
+                    className="filter-dropdown"
+                )
+            ])
+        )
+
     if id:
-        ids = ["ID1", "ID2", "ID3"]
         filter_rows.append(
             dbc.Row([
                 dbc.Label("Employee ID", html_for=f"{filter_id}-id-dropdown", className="filter-title"),
@@ -117,53 +166,7 @@ def filter(filter_id: str, id: bool, agency: bool, nationality: bool, religion: 
             ])
         )
 
-    if agency:
-        agencies = ["Agency A", "Agency B", "Agency C"]
-        filter_rows.append(
-            dbc.Row([
-                dbc.Label("Agency", html_for=f"{filter_id}-agency-dropdown", className="filter-title"),
-                dcc.Dropdown(
-                    id=f"{filter_id}-agency-dropdown",
-                    options=[{"label": agency, "value": agency} for agency in agencies],
-                    multi=True,
-                    placeholder="select one or more agencies",
-                    className="filter-dropdown"
-                )
-            ])
-        )
-
-    if nationality:
-        nationalities = ["Turkish", "Greek", "Armenian"]
-        filter_rows.append(
-            dbc.Row([
-                dbc.Label("Nationality", html_for=f"{filter_id}-nationality-dropdown", className="filter-title"),
-                dcc.Dropdown(
-                    id=f"{filter_id}-nationality-dropdown",
-                    options=[{"label": nationality, "value": nationality} for nationality in nationalities],
-                    multi=True,
-                    placeholder="select nationalities",
-                    className="filter-dropdown"
-                )
-            ])
-        )
-
-    if religion:
-        religions = ["Islam", "Christianity", "Judaism"]
-        filter_rows.append(
-            dbc.Row([
-                dbc.Label("Religion", html_for=f"{filter_id}-religion-dropdown", className="filter-title"),
-                dcc.Dropdown(
-                    id=f"{filter_id}-religion-dropdown",
-                    options=[{"label": religion, "value": religion} for religion in religions],
-                    multi=True,
-                    placeholder="select religions",
-                    className="filter-dropdown"
-                )
-            ])
-        )
-
     if time_period:
-        start, end = 1855, 1926
         filter_rows.append(
             dbc.Row([
                 dbc.Label("Time Period", html_for=f"{filter_id}-time-slider", className="filter-title"),
@@ -183,4 +186,5 @@ def filter(filter_id: str, id: bool, agency: bool, nationality: bool, religion: 
     return dbc.Container(
         filter_rows,
         class_name="filter-container",
+        fluid=True
     )

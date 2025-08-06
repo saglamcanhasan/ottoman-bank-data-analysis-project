@@ -37,5 +37,3 @@ def open_agencies(start: int=1856, end: int=1922, end_inclusive: bool=False):
 
         open_agencies_df.loc[clamped_start:clamped_end] += 1
     return open_agencies_df.reset_index().rename(columns={"index": "Year", 0: "Agency Count"})
-    
-print(employee_count())

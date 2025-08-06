@@ -12,15 +12,15 @@ By transforming passive historical records into an interactive dashboard, we aim
         [dbc.Row(
             content(
                 "Project Supervisor",
-                """- Selim Balcısoy"""
+                """- [Selim Balcısoy](mailto:selim.balcisoy@sabanciuniv.edu)"""
             )
         ),
         dbc.Row(
             content(
                 "Project Team",
-            """- Utku Can Yıldız
-- Ahmet Burak Ekmekçioğlu
-- Yusuf Eralp Kızıloğlu"""
+            """- [Utku Can Yıldız](mailto:utkuyildiz@sabanciuniv.edu)
+- [Ahmet Burak Ekmekçioğlu](mailto:eahmet@sabanciuniv.edu)
+- [Yusuf Eralp Kızıloğlu](mailto:ekiziloglu@sabanciuniv.edu)"""
             )
         )
     ])

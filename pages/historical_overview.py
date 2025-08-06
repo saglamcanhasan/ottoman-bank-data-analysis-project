@@ -5,7 +5,7 @@ from widgets.content import introduction, horizontal_separator, section, filter,
 
 dash.register_page(__name__, path="/historical-overview")
 
-agency_number_fig = plot(open_agencies(), "Year", "Agency Count", "Number of Agencies vs Year")
+agency_number_fig = plot(open_agencies(), "Year", "Agency Count", "Number of Agencies vs. Year")
 
 sections = ["Total Employees", "Number of Agencies", "Employee Turnover"]
 
@@ -24,7 +24,7 @@ def layout():
             {
                 "total-employees": {
                     "figure": {},
-                    "filter": filter("total-employees", True, True, True, True, True)
+                    "filter": filter("total-employees", True, True, True, True, False)
                 }
             }
         ),
@@ -37,7 +37,7 @@ def layout():
             {
                 "agency-number": {
                     "figure": agency_number_fig,
-                    "filter": filter("agency-number", True, True, True, True, True)
+                    "filter": filter("agency-number", True, False, False, False, False)
                 }
             }
         ),
@@ -50,7 +50,7 @@ def layout():
             {
                 "employee-turnover": {
                     "figure": {},
-                    "filter": filter("employee-turnover", True, True, True, True, True)
+                    "filter": filter("employee-turnover", True, True, True, True, False)
                 }
             }
         )

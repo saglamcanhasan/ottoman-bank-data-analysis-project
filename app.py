@@ -8,7 +8,12 @@ app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTS
 
 app.layout = html.Div([
     Navbar(),
-    dash.page_container],
+    dcc.Loading(
+        dash.page_container,
+        type="dot",
+        color="#00487A",
+        fullscreen=True
+    )],
     className="page-container"
 )
 

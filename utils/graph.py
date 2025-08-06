@@ -1,5 +1,6 @@
 import plotly.express as px
 import dash_cytoscape as cyto
+from plotly.colors import sample_colorscale
 
 def plot(df, x_label, y_label, title):
     fig = px.line(df, x_label, y_label, title=title)
@@ -52,7 +53,19 @@ def plot(df, x_label, y_label, title):
 
 
 
-def build_cyto_from_networkx(G, positions=None):
+def build_cyto_from_networkx(G, positions=None, is_colored=False):
+    
+    def get_gradient_color(value, min_val, max_val, colorscale):
+        norm_value = (value - min_val) / (max_val - min_val) if max_val != min_val else 0
+        return sample_colorscale(colorscale, [norm_value])[0]
+    
+    ottoman_colorscale = [
+        [0.0, "#B08D57"],  # gold
+        [0.4, "#7C0A02"],  # red
+        [0.7, "#300000"],  # dark red
+        [1.0, "#200000"]   # darkest red
+    ]
+    
     # cyto cose computes positions itself. if springlayout and fixed positions used, pass it down
     node_weights = {}
     for node in G.nodes(): # Sum of weights of edges connected to node
@@ -65,13 +78,18 @@ def build_cyto_from_networkx(G, positions=None):
     for node in G.nodes():
         weight = node_weights.get(node, 0)
         size = 20 + (weight / max_weight) * 30  # base size 20, up to 50
+        if is_colored:
+            color = get_gradient_color(weight, 0, max_weight, ottoman_colorscale)
+        else:
+            color = "#B08D57"   
         # You can normalize color similarly, or assign categories
         elements.append({
             "data": {
                 "id": node,
                 #"label": node,
                 "weight": weight,
-                "size": size
+                "size": size,
+                "color": color
             }
         })
 

@@ -11,7 +11,7 @@ sections = ["Co-worker Graph", "Most Connected Employees"]
 df = find_coworking_network_df(employee_dataset, min_years=5)
 df = sample_rand_df(df, 500)
 G = build_cowork_graph_from_df(df)
-network_fig = build_cyto_from_networkx(G)
+network_fig = build_cyto_from_networkx(G,None,True)
 #network_fig = plot_cyto(G, "network_fig")
 
 def layout():

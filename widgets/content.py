@@ -72,7 +72,7 @@ def section(title: str, description: str, figures: dict=dict(), is_cytoscape=Fal
                 layout={'name': 'cose', 'animate': False},
                 elements=figure,  # assuming figure is cyto elements list here
                 stylesheet=[
-                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)"}},
+                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)"}},
                     {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#B08D57"}},                   
                 ],
             )

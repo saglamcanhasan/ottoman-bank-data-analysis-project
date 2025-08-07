@@ -1,7 +1,7 @@
-import dash_bootstrap_components as dbc
-from dash import html, dcc, get_asset_url
+from dash import html, dcc
 import dash_cytoscape as cyto
-from utils.filter_parameters import agencies, grouped_functions, religions, ids, start, end
+import dash_bootstrap_components as dbc
+from utils.server.filter_parameters import countries, grouped_functions, religions, ids, start, end
 
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([
@@ -53,7 +53,7 @@ def vertical_separator():
 def horizontal_separator():
     return html.Div(className="content-horizontal-separator")
 
-def section(title: str, description: str, figures: dict=dict(), is_cytoscape=False):
+def section(title: str, description: str, figures: dict=dict(), is_cytoscape: bool=False):
     figure_rows = list()
     for figure_id in figures:
         # extract figure info
@@ -62,28 +62,29 @@ def section(title: str, description: str, figures: dict=dict(), is_cytoscape=Fal
         figure = figure_dict["figure"]
         filter = figure_dict.get("filter", None)
 
-        # generate a row
-        cols = list()
-
-        if is_cytoscape: # Render Cytoscape with passed elements
+        # check figure type
+        if is_cytoscape:
             graph_component = cyto.Cytoscape(
                 id=figure_id,
                 style={'width': '100%', 'height': '100%'},
                 layout={'name': 'cose', 'animate': False},
-                elements=figure,  # assuming figure is cyto elements list here
+                elements=figure,
                 stylesheet=[
                     {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)"}},
                     {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#B08D57"}},                   
                 ],
             )
-        else: # Usual Plotly Graph inside Loading
+
+        else:
             graph_component = dcc.Loading(
                 dcc.Graph(figure=figure, id=figure_id, className="graph"),
                 type="dot",
                 color="#00487A",
                 id="loader"
             )
-            
+
+        # generate a row
+        cols = list()
         cols.append(dbc.Col(graph_component, width=8, className="figure-container", id="deneme"))
         if filter is not None:
             cols.append(dbc.Col(vertical_separator(), width=1))
@@ -126,30 +127,50 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
     filter_rows = []
 
     if agency:
-        filtered_options = agencies.tolist()
-        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": agency, "value": agency} for agency in filtered_options]
+        filtered_options = countries
+        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": agency, "value": agency} for agency in filtered_options if agency != "Unknown"]
         filter_rows.append(
             dbc.Row([
-                dbc.Label("Agency", html_for=f"{filter_id}-agency-dropdown", className="filter-title"),
+                dbc.Label("Agency", html_for=f"{filter_id}-agency-country-dropdown", className="filter-title"),
                 dcc.Dropdown(
-                    id=f"{filter_id}-agency-dropdown",
+                    id=f"{filter_id}-agency-country-dropdown",
                     options=final_options,
+                    value=[],
                     multi=True,
-                    placeholder="select agencies",
+                    placeholder="select countries",
+                    className="filter-dropdown"
+                ),
+                dcc.Dropdown(
+                    id=f"{filter_id}-agency-city-dropdown",
+                    options=[],
+                    value=[],
+                    multi=True,
+                    disabled=True,
+                    placeholder="select cities",
+                    className="filter-dropdown"
+                ),
+                dcc.Dropdown(
+                    id=f"{filter_id}-agency-district-dropdown",
+                    options=[],
+                    value=[],
+                    multi=True,
+                    disabled=True,
+                    placeholder="select districts",
                     className="filter-dropdown"
                 )
             ])
         )
 
     if grouped_function:
-        filtered_options = grouped_functions.tolist()
-        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": grouped_function, "value": grouped_function} for grouped_function in filtered_options]
+        filtered_options = grouped_functions
+        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": grouped_function, "value": grouped_function} for grouped_function in filtered_options if agency != "Unknown"]
         filter_rows.append(
             dbc.Row([
-                dbc.Label("Grouped Function", html_for=f"{filter_id}-grouped_function-dropdown", className="filter-title"),
+                dbc.Label("Grouped Function", html_for=f"{filter_id}-grouped-function-dropdown", className="filter-title"),
                 dcc.Dropdown(
-                    id=f"{filter_id}-grouped_function-dropdown",
+                    id=f"{filter_id}-grouped-function-dropdown",
                     options=final_options,
+                    value=[],
                     multi=True,
                     placeholder="select grouped functions",
                     className="filter-dropdown"
@@ -158,15 +179,15 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
         )
 
     if religion:
-        filtered_options = religions.tolist()
-        filtered_options.remove("Other")
-        final_options = [{"label": "Other", "value": "Other"}, {"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": religion, "value": religion} for religion in filtered_options]
+        filtered_options = religions
+        final_options = [{"label": "Unknown", "value": "Unknown"}, {"label": "Other", "value": "Other"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": religion, "value": religion} for religion in filtered_options if agency != "Unknown" and agency != "Other"]
         filter_rows.append(
             dbc.Row([
                 dbc.Label("Religion", html_for=f"{filter_id}-religion-dropdown", className="filter-title"),
                 dcc.Dropdown(
                     id=f"{filter_id}-religion-dropdown",
                     options=final_options,
+                    value=[],
                     multi=True,
                     placeholder="select religions",
                     className="filter-dropdown"
@@ -181,7 +202,9 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
                 dcc.Dropdown(
                     id=f"{filter_id}-id-dropdown",
                     options=[{"label": id, "value": id} for id in ids],
-                    placeholder="select an employee ID",
+                    value=[],
+                    multi=True,
+                    placeholder="select employee IDs",
                     className="filter-dropdown"
                 )
             ])
@@ -190,9 +213,9 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
     if time_period:
         filter_rows.append(
             dbc.Row([
-                dbc.Label("Time Period", html_for=f"{filter_id}-time-slider", className="filter-title"),
+                dbc.Label("Time Period", html_for=f"{filter_id}-time-period-slider", className="filter-title"),
                 dcc.RangeSlider(
-                    id=f"{filter_id}-time-slider",
+                    id=f"{filter_id}-time-period-slider",
                     min=start,
                     max=end,
                     step=1,

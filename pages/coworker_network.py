@@ -1,8 +1,8 @@
 import dash
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-from utils.graph import plot_bar, build_cyto_from_networkx, plot_cyto
-from utils.coworker_network_analysis import find_coworking_network_df, build_cowork_graph_from_df, sample_rand_df
-from utils.data_loader import employee_dataset
+from utils.graph.graph import plot_bar, build_cyto_from_networkx, plot_cyto
+from utils.server.coworker_network_analysis import find_coworking_network_df, build_cowork_graph_from_df, sample_rand_df
+from utils.server.data_loader import employee_dataset
 
 dash.register_page(__name__, path="/coworker-network")
 

@@ -128,7 +128,6 @@ def preprocess(employee_dataset, agency_dataset):
         "Mersin": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Mersina": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Mersine": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
-        "Mersi̇N": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Mesrrine": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Milas": {"district": "Milas", "city": "Muğla", "country": "Turkey"},
         "Muş": {"district": np.nan, "city": "Muş", "country": "Turkey"},
@@ -425,7 +424,7 @@ def preprocess(employee_dataset, agency_dataset):
         "Urfa": {"district": np.nan, "city": "Şanlıurfa", "country": "Russia"},
         "Vanisa": {"district": np.nan, "city": "Manisa", "country": "Turkey"},
     }
-    locations_df = employee_dataset["agency"].str.lower().str.title().map(fr_to_eng)
+    locations_df = employee_dataset["agency"].str.strip().str.title().map(fr_to_eng)
     employee_dataset["District"] = locations_df.str.get("district")
     employee_dataset["City"] = locations_df.str.get("city")
     employee_dataset["Country"] = locations_df.str.get("country")
@@ -457,7 +456,7 @@ def preprocess(employee_dataset, agency_dataset):
         "Eskişehir": {"district": np.nan, "city": "Eskişehir", "country": "Turkey"},
         "Geyve": {"district": "Geyve", "city": "Sakarya", "country": "Turkey"},
         "Giresun": {"district": np.nan, "city": "Giresun", "country": "Turkey"},
-        "Harput": {"district": "Harput", "city": "Elazığ", "country": "Turkey"}, # Historical district of Elazığ
+        "Harput": {"district": "Harput", "city": "Elazığ", "country": "Turkey"},
         "Isparta": {"district": np.nan, "city": "Isparta", "country": "Turkey"},
         "Izmir": {"district": np.nan, "city": "İzmir", "country": "Turkey"},
         "Kastamonu": {"district": np.nan, "city": "Kastamonu", "country": "Turkey"},
@@ -543,7 +542,7 @@ def preprocess(employee_dataset, agency_dataset):
         "Üsküp": {"district": np.nan, "city": "Skopje", "country": "North Macedonia"},
         "İşkodra": {"district": np.nan, "city": "Shkodra", "country": "Albania"},
     }
-    locations_df = agency_dataset["City"].str.lower().str.title().map(tr_to_eng)
+    locations_df = agency_dataset["City"].str.strip().str.title().map(tr_to_eng)
     agency_dataset["District"] = locations_df.str.get("district")
     agency_dataset["City"] = locations_df.str.get("city")
     agency_dataset["Country"] = locations_df.str.get("country")
@@ -564,7 +563,7 @@ def preprocess(employee_dataset, agency_dataset):
         "Surveillant": "Supervisor",
         "Titres": "Securities"
     }
-    employee_dataset.loc[:, "Grouped_Functions"] = employee_dataset["Grouped_Functions"].str.lower().str.title().map(fr_to_eng).fillna(employee_dataset["Grouped_Functions"])
+    employee_dataset.loc[:, "Grouped_Functions"] = employee_dataset["Grouped_Functions"].str.strip().str.title().map(fr_to_eng)
 
     # religion name fr to eng translation
     fr_to_en = {
@@ -579,7 +578,11 @@ def preprocess(employee_dataset, agency_dataset):
         "Other": "Other",
         "Protestant": "Protestant"
     }
-    employee_dataset.loc[:, "merged_religion"] = employee_dataset["merged_religion"].str.lower().str.title().map(fr_to_en).fillna(employee_dataset["merged_religion"])
+    employee_dataset.loc[:, "merged_religion"] = employee_dataset["merged_religion"].str.strip().str.title().map(fr_to_en)
+
+    # fill NaN
+    employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]] = employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]].fillna("Unknown")
+    agency_dataset.loc[:, ["District", "City", "Country"]] = agency_dataset.loc[:, ["District", "City", "Country"]].fillna("Unknown")
 
     return employee_dataset, agency_dataset
 

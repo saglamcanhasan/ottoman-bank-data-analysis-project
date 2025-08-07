@@ -67,11 +67,11 @@ def section(title: str, description: str, figures: dict=dict(), is_cytoscape: bo
             graph_component = cyto.Cytoscape(
                 id=figure_id,
                 style={'width': '100%', 'height': '100%'},
-                layout={'name': 'cose', 'animate': False},
+                layout={'name': 'concentric',  'animate': False},
                 elements=figure,
                 stylesheet=[
-                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)"}},
-                    {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#B08D57"}},                   
+                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)",  "font-size": "8px"}},
+                    {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#7C0A02","opacity": 0.3 ,"width": 1}},                   
                 ],
             )
 

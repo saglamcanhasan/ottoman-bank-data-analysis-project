@@ -1,5 +1,6 @@
 from dash import Input, Output, callback
 from utils.server.filter_parameters import cities, districts
+import dash_cytoscape as cyto
 
 def create_agency_dropdown_callback(figure_id):
     @callback(

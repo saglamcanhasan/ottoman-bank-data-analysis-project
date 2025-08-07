@@ -85,6 +85,40 @@ def generate_filtered_cowork_elements(df): #wrapper function just to pass
     return build_cyto_from_networkx(G, is_colored=True)
 
 
+
+
+
+def generate_filtered_cowork_bardf(
+    selected_countries=None,
+    selected_cities=None,
+    selected_districts=None,
+    selected_agencies=None,
+    selected_time_period=None,
+    selected_religions=None,
+    selected_grouped_functions=None,
+    selected_ids=None,
+):
+    df = generate_filtered_cowork_networkdf(selected_countries,selected_cities,selected_districts,selected_agencies,
+    selected_time_period,selected_religions,None)
+
+    if df.empty:
+        return pd.DataFrame()  # Return an empty dataframe if no data is found
+    
+    if selected_grouped_functions:
+        df = df[df["Grouped_Functions"].isin(selected_grouped_functions)]
+        
+    cowork_df = find_coworking_network_df(df, 5)
+    
+    print(cowork_df.columns)
+    
+    if 'employee_1' in cowork_df.columns and 'employee_2' in cowork_df.columns:
+        cowork_df['employee_pair'] = cowork_df['employee_1'].astype(str) + " - " + cowork_df['employee_2'].astype(str)
+    else:
+        return pd.DataFrame()  # Return empty DataFrame if columns are missing
+
+    return cowork_df.nlargest(10, 'overlap_years')
+
+
 # graph node places precomputation, if needed
 def build_cowork_graph_from_df(df):
     G = nx.Graph()

@@ -1,7 +1,7 @@
 import dash
 from utils.graph.graph import plot
 from utils.callbacks.figure_callbacks import create_figure_callback
-from utils.server.historical_overview_analysis import open_agencies
+from utils.server.historical_overview_analysis import employee_count, agency_count
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
@@ -57,5 +57,8 @@ def layout():
     ]
 
 # callbacks
+create_agency_dropdown_callback("total-employees")
+create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year"), "total-employees", True, True, True, True, False)
+
 create_agency_dropdown_callback("agency-number")
-create_figure_callback(open_agencies, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year"), "agency-number", True, False, False, False, False)
+create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year"), "agency-number", True, False, False, False, False)

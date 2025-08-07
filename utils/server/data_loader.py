@@ -580,6 +580,70 @@ def preprocess(employee_dataset, agency_dataset):
     }
     employee_dataset.loc[:, "merged_religion"] = employee_dataset["merged_religion"].str.strip().str.title().map(fr_to_en)
 
+    # date, stary year, end year imputation
+    new_records = []
+
+    id_record_group = employee_dataset.groupby("employee_code")
+    for id, record_group in id_record_group:
+        start_years = record_group["start_year"].dropna()
+        end_years = record_group["end_year"].dropna()
+
+        min_date = record_group["Date"].min()
+        max_date = record_group["Date"].max()
+
+        # find start year
+        if len(start_years) == 0:
+            start_year = min_date
+        else:
+            start_year = min(min_date, start_years.min())
+
+        # find end year
+        if len(end_years) == 0:
+            end_year = max_date
+        else:
+            end_year = max(max_date, end_years.max())
+
+        tenure = end_year - start_year
+
+        # skip employee if all values are missing
+        if pd.isna(start_year) and pd.isna(end_year):
+            continue
+
+        # impute missing year values in each record
+        missing_start_idx = record_group[record_group["start_year"] != start_year].index
+        employee_dataset.loc[missing_start_idx, "start_year"] = start_year
+
+        missing_end_idx = record_group[record_group["end_year"] != end_year].index
+        employee_dataset.loc[missing_end_idx, "end_year"] = end_year
+
+        missing_idx = np.unique(list(missing_start_idx) + list(missing_end_idx))
+        employee_dataset.loc[missing_idx, "tenure"] = tenure
+
+        # check if start year is less than minimum of record dates
+        if start_year < min_date:
+            new_record = {
+                "employee_code": id,
+                "Date": start_year,
+                "start_year": start_year,
+                "end_year": end_year,
+                "tenure": tenure,
+                "City": "Unknown",
+                "District": "Unknown",
+                "Country": "Unknown",
+            }
+
+            # copy other columns
+            for col in ["ID"]:
+                if col not in new_record:
+                    values = record_group[col]
+                    new_record[col] = values.iloc[0]
+
+            new_records.append(new_record)
+            
+    if len(new_records) != 0:
+        new_records_df = pd.DataFrame(new_records)
+        employee_dataset = pd.concat([employee_dataset, new_records_df], ignore_index=True)            
+
     # fill NaN
     employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]] = employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]].fillna("Unknown")
     agency_dataset.loc[:, ["District", "City", "Country"]] = agency_dataset.loc[:, ["District", "City", "Country"]].fillna("Unknown")

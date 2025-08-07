@@ -232,7 +232,6 @@ a:hover {
 
 .filter-dropdown {
     margin: 0.25rem 0rem;
-
 }
 
 .filter-title {
@@ -241,7 +240,7 @@ a:hover {
     font-family: var(--font-family-title);
     font-size: 1.25rem;
     font-weight: 600;
-    margin-top: 1.75rem;
+    margin-top: 1.5rem;
 }
 
 .content-container {

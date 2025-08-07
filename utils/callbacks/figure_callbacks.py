@@ -16,15 +16,15 @@ def create_figure_callback(generate_df, generate_figure, figure_id: str, agency:
 
     if grouped_function:
         inputs.append(Input(f"{figure_id}-grouped-function-dropdown", "value"))
-        arg_names.append("selected_grouped_function")
+        arg_names.append("selected_grouped_functions")
 
     if religion:
-        inputs.apennd(Input(f"{figure_id}-religion-dropdown", "value"))
-        arg_names.append("selected_religion")
+        inputs.append(Input(f"{figure_id}-religion-dropdown", "value"))
+        arg_names.append("selected_religions")
 
     if id:
         inputs.append(Input(f"{figure_id}-id-dropdown", "value"))
-        arg_names.append("selected_id")
+        arg_names.append("selected_ids")
 
     if time_period:
         inputs.append(Input(f"{figure_id}-time-period-slider", "value"))

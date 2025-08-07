@@ -1,7 +1,7 @@
 import dash
-from utils.graph.graph import plot
+from utils.graph.graph import plot, bar, combine
 from utils.callbacks.figure_callbacks import create_figure_callback
-from utils.server.historical_overview_analysis import employee_count, agency_count
+from utils.server.historical_overview_analysis import employee_count, agency_count, employee_turnover
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
@@ -24,7 +24,7 @@ def layout():
             {
                 "total-employees": {
                     "figure": {},
-                    "filter": filter("total-employees", True, True, True, True, False)
+                    "filter": filter("total-employees", True, True, True, True, True)
                 }
             }
         ),
@@ -37,7 +37,7 @@ def layout():
             {
                 "agency-number": {
                     "figure": {},
-                    "filter": filter("agency-number", True, False, False, False, False)
+                    "filter": filter("agency-number", True, False, False, False, True)
                 }
             }
         ),
@@ -50,7 +50,7 @@ def layout():
             {
                 "employee-turnover": {
                     "figure": {},
-                    "filter": filter("employee-turnover", True, True, True, True, False)
+                    "filter": filter("employee-turnover", True, True, True, True, True)
                 }
             }
         )
@@ -58,7 +58,10 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("total-employees")
-create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year"), "total-employees", True, True, True, True, False)
+create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year", 1), "total-employees", True, True, True, True, True)
 
 create_agency_dropdown_callback("agency-number")
-create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year"), "agency-number", True, False, False, False, False)
+create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year", 1), "agency-number", True, False, False, False, True)
+
+create_agency_dropdown_callback("employee-turnover")
+create_figure_callback(employee_turnover, lambda df: combine([bar(df, "Year", "Hires", "", 1), bar(df, "Year", "Departures", "", 3)], [plot(df, "Year", "Net Change", "", 0)], "Year", ["Hires/Departures", "Net Change"], "Number of Hires & Departures vs. Year"), "employee-turnover", True, True, True, True, True)

@@ -1,10 +1,11 @@
 import plotly.express as px
 import dash_cytoscape as cyto
+from plotly.subplots import make_subplots
 from plotly.colors import sample_colorscale
 
-def plot(df, x_label, y_label, title):
-    fig = px.line(df, x_label, y_label, title=title)
+colors = ["#B08D57", "#00587A", "#00487A", "#7C0A02","#300000"]
 
+def theme(fig):
     fig.update_layout(
         font=dict(
             family="Cormorant SC",
@@ -21,7 +22,6 @@ def plot(df, x_label, y_label, title):
             font_family="Cormorant Garamond",
             font_size=20,
             font_color="#EFEBD6",
-            bgcolor="#00587A",
             bordercolor="#B08D57"
         ),
         xaxis=dict(
@@ -36,16 +36,76 @@ def plot(df, x_label, y_label, title):
             linecolor="#DFC6A0",
             zerolinecolor="#B08D57", 
         ),
+        yaxis2=dict(
+            showgrid=True,
+            linecolor="#DFC6A0",
+            zerolinecolor="#DFC6A0"
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=1.1,
+            xanchor="left",
+            x=0
+        ),
         paper_bgcolor="#EFEBD6",
         plot_bgcolor="#EFEBD6",
     )
 
+def plot(df, x_label, y_label, title, color_index=0):
+    fig = px.line(df, x_label, y_label, title=title)
+
+    theme(fig)
+
     fig.update_traces(
         mode="lines+markers",
-        line=dict(color="#00587A", width=3)
+        line=dict(color=colors[color_index % len(colors)], width=3),
+        name=y_label
     )
 
     return fig
+
+def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
+    if orientation == "h":
+        x_label, y_label = y_label, x_label
+
+    fig = px.bar(df, x_label, y_label, title=title, orientation=orientation)
+
+    theme(fig)
+
+    fig.update_traces(
+        marker_color=colors[color_index % len(colors)],
+        name=y_label if orientation == "v" else x_label
+    )
+
+    return fig
+
+def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title):
+    is_there_second_y_label = len(figures_y_right) != 0
+    
+    supfig = make_subplots(specs=[[{"secondary_y": is_there_second_y_label}]])
+    
+    for figure_list_index, figure_list in enumerate([figures_y_left, figures_y_right]):
+        secondary_y = figure_list_index == 1
+        for figure in figure_list:
+            for trace in figure.data:
+                supfig.add_trace(trace, secondary_y=secondary_y)
+                
+    supfig.update_layout(
+        title=title,
+        xaxis_title=x_label,
+        yaxis_title=y_labels[0],
+        barmode="group",
+    )
+
+    if is_there_second_y_label:
+        supfig.update_yaxes(title_text=y_labels[1], secondary_y=True)
+
+    theme(supfig)
+
+    supfig.update_traces(showlegend=True)
+
+    return supfig
 
 def plot_bar(df, x, y, title, xlabel, ylabel, top_n=10, horizontal=True):
     df_sorted = df.sort_values(by=x, ascending=False).head(top_n)

@@ -37,6 +37,6 @@ grouped_functions = np.unique(employee_dataset["Grouped_Functions"])
 grouped_functions = grouped_functions[grouped_functions != "Unknown"].tolist()
 
 religions = np.unique(employee_dataset["merged_religion"].dropna())
-religions = religions[religions != "Unknown"].tolist()
+religions = religions[(religions != "Unknown") & (religions != "Other")].tolist()
 
 ids = np.unique(employee_dataset["employee_code"].dropna()).tolist()

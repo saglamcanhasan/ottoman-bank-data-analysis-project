@@ -91,7 +91,7 @@ def build_cyto_from_networkx(G, positions=None, is_colored=False):
 
     for node in G.nodes():
         weight = node_weights.get(node, 0)
-        size = 20 + (weight / max_weight) * 30  # base size 20, up to 50
+        size = 5 + (weight / max_weight) * 15  # base size 5, up to 20
         if is_colored:
             color = get_gradient_color(weight, 0, max_weight, ottoman_colorscale)
         else:
@@ -106,7 +106,6 @@ def build_cyto_from_networkx(G, positions=None, is_colored=False):
                 "color": color
             }
         })
-
 
     for source, target, data in G.edges(data=True):
         elements.append({

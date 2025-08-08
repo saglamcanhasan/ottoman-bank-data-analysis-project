@@ -1,7 +1,9 @@
 import dash
 from dash import html
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-
+from utils.callbacks.figure_callbacks import create_figure_callback
+from utils.graph.graph import plot_gantt
+from utils.server.employee_profiles_analysis import get_multiple_employees_gantt_data
 dash.register_page(__name__, path="/employee-profiles")
 
 sections = ["Profile Card & Career Timeline"]
@@ -21,7 +23,7 @@ def layout():
             {
                 "profile-card": {
                     "figure": {},
-                    "filter": filter("profile-card", True, True, True, True, True)
+                    "filter": filter("profile-card", False, False, False, False, False, True)
                 },
                 "career-timeline": {
                     "figure": {}
@@ -29,3 +31,11 @@ def layout():
             }
         )
     ]
+    
+
+create_figure_callback(
+    generate_df=get_multiple_employees_gantt_data,  # The named argument (keyword argument)
+    generate_figure=lambda df: plot_gantt(df,"Start",  "Finish", "Task" ,"Task",  "How many years", "Countries Employee Worked in"),
+    figure_id="profile-card",       
+    agency=False, grouped_function=False, religion=False, id=False, time_period=False, search = True
+)

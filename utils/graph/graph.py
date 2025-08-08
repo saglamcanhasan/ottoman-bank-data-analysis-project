@@ -2,6 +2,7 @@ import plotly.express as px
 import dash_cytoscape as cyto
 from plotly.subplots import make_subplots
 from plotly.colors import sample_colorscale
+import pandas as pd
 
 colors = ["#B08D57", "#00587A", "#00487A", "#7C0A02","#300000"]
 
@@ -138,7 +139,29 @@ def plot_bar(df, x, y, title, xlabel, ylabel, horizontal=True):
     )
     return fig
 
+def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, ylabel):
+    if df.empty:
+        return px.timeline()  # Returning an empty bar chart
+    
+    df['Start'] = pd.to_datetime(df['Start'], format='%Y')  # Convert to datetime (if not already)
+    df['Finish'] = pd.to_datetime(df['Finish'], format='%Y')  # Convert to datetime (if not already)
 
+    fig = px.timeline(df, 
+                      x_start=x_start_column,
+                      x_end=x_end_column, 
+                      y=y_column,    
+                      color=color_column,
+                      labels={y_column: ylabel, 
+                              x_start_column: xlabel, 
+                              x_end_column: "End Year", 
+                              color_column: "Country/Agency"},
+                      title="Employee Career Timeline by Country/Agency")
+    
+    fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
+    
+    theme(fig)
+
+    return fig
 
 
 def build_cyto_from_networkx(G, positions=None, is_colored=False):

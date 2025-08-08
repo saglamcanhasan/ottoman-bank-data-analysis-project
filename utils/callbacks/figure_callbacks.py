@@ -1,37 +1,42 @@
 from dash import Input, Output, callback
 from utils.server.filter_parameters import countries, cities, districts
 
-def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
+def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, is_cyto=False, filter_id: str=""):
+    # get figure id
+    if len(filter_id) == 0:
+        filter_id = figure_id
+    
+    # determine inputs
     inputs = list()
     arg_names = []
 
     if agency:
         inputs.extend([
-                Input(f"{figure_id}-agency-country-dropdown", "value"),
-                Input(f"{figure_id}-agency-city-dropdown", "value"),
-                Input(f"{figure_id}-agency-district-dropdown", "value")
+                Input(f"{filter_id}-agency-country-dropdown", "value"),
+                Input(f"{filter_id}-agency-city-dropdown", "value"),
+                Input(f"{filter_id}-agency-district-dropdown", "value")
             ]
         )
         arg_names.extend(["selected_countries", "selected_cities", "selected_districts"])
 
     if grouped_function:
-        inputs.append(Input(f"{figure_id}-grouped-function-dropdown", "value"))
+        inputs.append(Input(f"{filter_id}-grouped-function-dropdown", "value"))
         arg_names.append("selected_grouped_functions")
 
     if religion:
-        inputs.append(Input(f"{figure_id}-religion-dropdown", "value"))
+        inputs.append(Input(f"{filter_id}-religion-dropdown", "value"))
         arg_names.append("selected_religions")
 
     if id:
-        inputs.append(Input(f"{figure_id}-id-dropdown", "value"))
+        inputs.append(Input(f"{filter_id}-id-dropdown", "value"))
         arg_names.append("selected_ids")
 
     if time_period:
-        inputs.append(Input(f"{figure_id}-time-period-slider", "value"))
+        inputs.append(Input(f"{filter_id}-time-period-slider", "value"))
         arg_names.append("selected_time_period")
 
     @callback(
-        Output(figure_id, "figure"),
+        Output(figure_id, "figure" if not is_cyto else "elements"),
         *inputs
     )
     def figure_callback(*args):
@@ -40,40 +45,3 @@ def create_figure_callback(generate_df, generate_figure, figure_id: str, agency:
 
         df = generate_df(**kwargs)
         return generate_figure(df)
-
-def create_cyto_callback(generate_df, generate_elements, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
-    inputs = list()
-    arg_names = []
-
-    if agency:
-        inputs.extend([
-            Input(f"{figure_id}-agency-country-dropdown", "value"),
-            Input(f"{figure_id}-agency-city-dropdown", "value"),
-            Input(f"{figure_id}-agency-district-dropdown", "value"),
-        ])
-        arg_names.extend(["selected_countries", "selected_cities", "selected_districts"])
-
-    if grouped_function:
-        inputs.append(Input(f"{figure_id}-grouped-function-dropdown", "value"))
-        arg_names.append("selected_grouped_function")
-
-    if religion:
-        inputs.append(Input(f"{figure_id}-religion-dropdown", "value"))
-        arg_names.append("selected_religions")
-
-    if id:
-        inputs.append(Input(f"{figure_id}-id-dropdown", "value"))
-        arg_names.append("selected_id")
-
-    if time_period:
-        inputs.append(Input(f"{figure_id}-time-period-slider", "value"))
-        arg_names.append("selected_time_period")
-
-    @callback(
-        Output(figure_id, "elements"),  # note: "elements", not "figure"
-        *inputs
-    )
-    def cyto_callback(*args):
-        kwargs = dict(zip(arg_names, args))
-        df_filtered = generate_df(**kwargs)
-        return generate_elements(df_filtered)

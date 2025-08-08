@@ -2,30 +2,30 @@ from itertools import combinations
 from utils.graph.graph  import build_cyto_from_networkx
 import pandas as pd
 import networkx as nx
-from utils.server.data_loader import employee_dataset
+from utils.server.data_loader import employee_df
 
 
 def find_coworking_network_df(df, min_years=5): # for all data
     overlaps = []
     for emp1, emp2 in combinations(df.to_dict("records"), 2):
-        if emp1["agency"] == emp2["agency"]:
-            if (pd.isna(emp1["start_year"]) or pd.isna(emp1["end_year"]) or
-                pd.isna(emp2["start_year"]) or pd.isna(emp2["end_year"])):
+        if emp1["Agency"] == emp2["Agency"]:
+            if (pd.isna(emp1["Career Start Year"]) or pd.isna(emp1["Career End Year"]) or
+                pd.isna(emp2["Career Start Year"]) or pd.isna(emp2["Career End Year"])):
                 continue
 
-            if emp1["employee_code"] == emp2["employee_code"]:
+            if emp1["ID"] == emp2["ID"]:
                 continue
                 
-            if emp1["start_year"] <= emp2["end_year"] and emp2["start_year"] <= emp1["end_year"]:
-                overlap_start = max(emp1["start_year"], emp2["start_year"])
-                overlap_end = min(emp1["end_year"], emp2["end_year"])
+            if emp1["Career Start Year"] <= emp2["Career End Year"] and emp2["Career Start Year"] <= emp1["Career End Year"]:
+                overlap_start = max(emp1["Career Start Year"], emp2["Career Start Year"])
+                overlap_end = min(emp1["Career End Year"], emp2["Career End Year"])
                 overlap_years = overlap_end - overlap_start + 1
                 
                 if overlap_years >= min_years:
                     overlaps.append({
-                        "employee_1": emp1["employee_code"],
-                        "employee_2": emp2["employee_code"],
-                        "agency": emp1["agency"],
+                        "employee_1": emp1["ID"],
+                        "employee_2": emp2["ID"],
+                        "Agency": emp1["Agency"],
                         "overlap_years": overlap_years,
                         "start": overlap_start,
                         "end": overlap_end
@@ -38,7 +38,7 @@ def sample_rand_df(df, num): # sample num amount of random rows from df does not
     return df.sample(n=sample_size, random_state=42)
 
 
-sample_df = sample_rand_df(employee_dataset, 1000)
+sample_df = sample_rand_df(employee_df, 1000)
 
 def generate_filtered_cowork_networkdf(
     selected_countries=None,
@@ -60,20 +60,20 @@ def generate_filtered_cowork_networkdf(
     if selected_districts:
         filtered = filtered[filtered["District"].isin(selected_districts)]
     if selected_agencies:
-        filtered = filtered[filtered["agency"].isin(selected_agencies)]
+        filtered = filtered[filtered["Agency"].isin(selected_agencies)]
     if selected_religions:
-        filtered = filtered[filtered["merged_religion"].isin(selected_religions)]
+        filtered = filtered[filtered["Religion"].isin(selected_religions)]
 
     # Timeframe filtering
     if selected_startyear is not None and selected_endyear is not None:
         filtered = filtered.copy()
-        filtered["start_year"] = pd.to_numeric(filtered["start_year"], errors="coerce").fillna(0).astype(int)
-        filtered["end_year"] = pd.to_numeric(filtered["end_year"], errors="coerce").fillna(9999).astype(int)
+        filtered["Career Start Year"] = pd.to_numeric(filtered["Career Start Year"], errors="coerce").fillna(0).astype(int)
+        filtered["Career End Year"] = pd.to_numeric(filtered["Career End Year"], errors="coerce").fillna(9999).astype(int)
 
         # Keep only rows where the time range overlaps with selected range
         filtered = filtered[
-            (filtered["start_year"] <= selected_endyear) &
-            (filtered["end_year"] >= selected_startyear)
+            (filtered["Career Start Year"] <= selected_endyear) &
+            (filtered["Career End Year"] >= selected_startyear)
         ]
 
     return sample_rand_df(filtered, 100)
@@ -127,7 +127,7 @@ def build_cowork_graph_from_df(df):
             row["employee_1"],
             row["employee_2"],
             weight=row["overlap_years"],
-            agency=row["agency"],
+            agency=row["Agency"],
             start=row["start"],
             end=row["end"],
         )

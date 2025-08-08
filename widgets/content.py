@@ -53,7 +53,7 @@ def vertical_separator():
 def horizontal_separator():
     return html.Div(className="content-horizontal-separator")
 
-def section(title: str, description: str, figures: dict=dict(), is_cytoscape: bool=False):
+def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=False):
     figure_rows = list()
     for figure_id in figures:
         # extract figure info
@@ -63,29 +63,26 @@ def section(title: str, description: str, figures: dict=dict(), is_cytoscape: bo
         filter = figure_dict.get("filter", None)
 
         # check figure type
-        if is_cytoscape:
-            graph_component = cyto.Cytoscape(
-                id=figure_id,
-                style={'width': '100%', 'height': '100%'},
-                layout={'name': 'concentric',  'animate': False},
-                elements=figure,
-                stylesheet=[
-                    {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)",  "font-size": "8px"}},
-                    {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#7C0A02","opacity": 0.3 ,"width": 1}},                   
-                ],
-            )
-
-        else:
-            graph_component = dcc.Loading(
-                dcc.Graph(figure=figure, id=figure_id, className="graph"),
-                type="dot",
-                color="#00487A",
-                id="loader"
-            )
+        graph = cyto.Cytoscape(
+            id=figure_id,
+            style={'width': '100%', 'height': '100%'},
+            layout={'name': 'concentric',  'animate': False},
+            elements=figure,
+            stylesheet=[
+                {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)",  "font-size": "8px"}},
+                {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#7C0A02","opacity": 0.3 ,"width": 1}},                   
+            ],
+        ) if is_cyto else dcc.Graph(figure=figure, id=figure_id, className="graph")
+        graph_component = dcc.Loading(
+            graph,
+            type="dot",
+            color="#00487A",
+            id="loader"
+        )
 
         # generate a row
         cols = list()
-        cols.append(dbc.Col(graph_component, width=8, className="figure-container", id="deneme"))
+        cols.append(dbc.Col(graph_component, width=8, className="figure-container"))
         if filter is not None:
             cols.append(dbc.Col(vertical_separator(), width=1))
             cols.append(dbc.Col(filter, width=3))

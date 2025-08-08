@@ -2,7 +2,7 @@ import dash
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 from utils.graph.graph import plot_bar, build_cyto_from_networkx, plot_cyto, plot
 from utils.server.coworker_network_analysis import find_coworking_network_df, build_cowork_graph_from_df, sample_rand_df, generate_filtered_cowork_networkdf, generate_filtered_cowork_elements, generate_filtered_cowork_bardf
-from utils.callbacks.figure_callbacks import create_figure_callback, create_cyto_callback
+from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 
 dash.register_page(__name__, path="/coworker-network")
@@ -30,7 +30,7 @@ def layout():
             {
                 "cowork-network-graph": {
                     "figure":{},
-                    "filter": filter("cowork-network-graph", agency=True, grouped_function=True, religion=True, id=True, time_period=True)
+                    "filter": filter("cowork-network-graph", True, True, True, True, True)
 
                 }
             },
@@ -54,26 +54,23 @@ def layout():
     
 # callbacks
 create_agency_dropdown_callback("cowork-network-graph")
-
-# Register callback
-create_cyto_callback(
+create_figure_callback(
     generate_df=generate_filtered_cowork_networkdf,
-    generate_elements=generate_filtered_cowork_elements,
+    generate_figure=generate_filtered_cowork_elements,
     figure_id="cowork-network-graph",
     agency=True,
     grouped_function=False,
     religion=True,
     id=False,
-    time_period=True
+    time_period=True,
+    is_cyto=True
 )
 
-
-# callbacks
 create_agency_dropdown_callback("connected-employees")
 create_figure_callback(
     generate_df=generate_filtered_cowork_bardf,  # The named argument (keyword argument)
-    figure_id="connected-employees",              # The figure ID as a positional argument
     generate_figure=lambda df: plot_bar(df,"overlap_years",  "employee_pair", "Longest Coworking Employees","overlap years",  "employees", top_n=10, horizontal=True),
+    figure_id="connected-employees",              # The figure ID as a positional argument
     agency=True, grouped_function=True, religion=True, id=True, time_period=True  # Other boolean arguments
 )
 

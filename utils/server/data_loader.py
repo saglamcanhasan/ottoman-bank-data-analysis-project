@@ -1,25 +1,30 @@
-from os.path import join
-import pandas as pd
 import numpy as np
-from pprint import pprint
+import pandas as pd
+from os.path import join
 
-def preprocess(employee_dataset, agency_dataset):
-    # filter datasets
-    agency_dataset = agency_dataset.iloc[:, :3]
+def drop_columns(employee_df, agency_df):
+    agency_df = agency_df.loc[:, ["Opening date", "Closing date", "City"]]
+    employee_df.drop(columns=["ID"], inplace=True)
+    return employee_df, agency_df
 
-    # change inconsistent closing dates
-    mask = agency_dataset["City"] == "Rodos"
-    if mask.any():
-        closing_date = agency_dataset.loc[mask, "Closing date"].values[0]
-        if isinstance(closing_date, str) and "," in closing_date:
-            second_date = closing_date.split(",")[1].strip()
-            agency_dataset.loc[mask, "Closing date"] = second_date
+def rename_columns(employee_df, agency_df):
+    agency_df = agency_df.rename(columns={"Opening date": "Opening Year", "Closing date": "Closing Year"})
+    employee_df = employee_df.rename(columns={"employee_code": "ID", "Date": "Record Year", "agency": "Agency", "Grouped_Functions": "Function", "Trait": "Base Salary", "Indemnités": "Allowances",  "merged_religion": "Religion", "start_year": "Career Start Year", "end_year": "Career End Year", "tenure": "Tenure"})
+    return employee_df, agency_df
 
-    # type translations
-    agency_dataset.loc[:, "Closing date"] = pd.to_numeric(agency_dataset["Closing date"], errors="coerce")
+def change_inconsistent_date(agency_df):
+    mask = agency_df["City"] == "Rodos"
+    closing_year = agency_df.loc[mask, "Closing Year"].values[0]
+    agency_df.loc[mask, "Closing Year"] = closing_year.split(",")[1].strip()
+    return agency_df
 
-    # agency name to district, city, and country
-    fr_to_eng = {
+def change_types(agency_df):
+    agency_df.loc[:, "Closing Year"] = pd.to_numeric(agency_df["Closing Year"], errors="coerce")
+    return agency_df
+
+def deduct_district_city_and_country(employee_df, agency_df):
+    agency_to_location = {
+        # may exist
         "Adana": {"district": np.nan, "city": "Adana", "country": "Turkey"},
         "Adapazarı": {"district": "Adapazarı", "city": "Sakarya", "country": "Turkey"},
         "Dada-Bazar": {"district": "Adapazarı", "city": "Sakarya", "country": "Turkey"},
@@ -423,17 +428,8 @@ def preprocess(employee_dataset, agency_dataset):
         "Rodoto": {"district": np.nan, "city": "Tekirdağ", "country": "Turkey"},
         "Urfa": {"district": np.nan, "city": "Şanlıurfa", "country": "Russia"},
         "Vanisa": {"district": np.nan, "city": "Manisa", "country": "Turkey"},
-    }
-    locations_df = employee_dataset["agency"].str.strip().str.title().map(fr_to_eng)
-    employee_dataset["District"] = locations_df.str.get("district")
-    employee_dataset["City"] = locations_df.str.get("city")
-    employee_dataset["Country"] = locations_df.str.get("country")
-    for column in ["District", "City", "Country"]:
-        location_counts = employee_dataset[column].value_counts(dropna=True)
-        rare_locations = location_counts[location_counts < 5].index
-        employee_dataset[column] = employee_dataset[column].apply(lambda location: np.nan if location in rare_locations else location)
 
-    tr_to_eng = {
+        # definitely exists        
         "Adana": {"district": np.nan, "city": "Adana", "country": "Turkey"},
         "Adapazarı": {"district": "Adapazarı", "city": "Sakarya", "country": "Turkey"},
         "Afyon Karahisar": {"district": np.nan, "city": "Afyonkarahisar", "country": "Turkey"},
@@ -542,12 +538,24 @@ def preprocess(employee_dataset, agency_dataset):
         "Üsküp": {"district": np.nan, "city": "Skopje", "country": "North Macedonia"},
         "İşkodra": {"district": np.nan, "city": "Shkodra", "country": "Albania"},
     }
-    locations_df = agency_dataset["City"].str.strip().str.title().map(tr_to_eng)
-    agency_dataset["District"] = locations_df.str.get("district")
-    agency_dataset["City"] = locations_df.str.get("city")
-    agency_dataset["Country"] = locations_df.str.get("country")
+    
+    locations_df = employee_df["Agency"].str.strip().str.title().map(agency_to_location)
+    employee_df["District"] = locations_df.str.get("district")
+    employee_df["City"] = locations_df.str.get("city")
+    employee_df["Country"] = locations_df.str.get("country")
+    for column in ["District", "City", "Country"]: # filter rare agencies - they may not exist
+        location_counts = employee_df[column].value_counts(dropna=True)
+        rare_locations = location_counts[location_counts < 5].index
+        employee_df[column] = employee_df[column].apply(lambda location: np.nan if location in rare_locations else location)
 
-    # grouped function name fr to eng translation
+    locations_df = agency_df["City"].str.strip().str.title().map(agency_to_location)
+    agency_df["District"] = locations_df.str.get("district")
+    agency_df["City"] = locations_df.str.get("city")
+    agency_df["Country"] = locations_df.str.get("country")
+
+    return employee_df, agency_df
+
+def translate_functions(employee_df):
     fr_to_eng = {
         "Bureau": "Office",
         "Caissier": "Cashier",
@@ -563,10 +571,12 @@ def preprocess(employee_dataset, agency_dataset):
         "Surveillant": "Supervisor",
         "Titres": "Securities"
     }
-    employee_dataset.loc[:, "Grouped_Functions"] = employee_dataset["Grouped_Functions"].str.strip().str.title().map(fr_to_eng)
 
-    # religion name fr to eng translation
-    fr_to_en = {
+    employee_df.loc[:, "Function"] = employee_df["Function"].str.strip().str.title().map(fr_to_eng)
+    return employee_df
+
+def translate_religions(employee_df):
+    fr_to_eng = {
         "Armenienne": "Armenian",
         "Catholique": "Catholic",
         "Christian": "Christian",
@@ -578,81 +588,115 @@ def preprocess(employee_dataset, agency_dataset):
         "Other": "Other",
         "Protestant": "Protestant"
     }
-    employee_dataset.loc[:, "merged_religion"] = employee_dataset["merged_religion"].str.strip().str.title().map(fr_to_en)
 
-    # date, stary year, end year imputation
+    employee_df.loc[:, "Religion"] = employee_df["Religion"].str.strip().str.title().map(fr_to_eng)
+    return employee_df
+
+def impute_career_start_end_year(employee_df):
     new_records = []
 
-    id_record_group = employee_dataset.groupby("employee_code")
-    for id, record_group in id_record_group:
-        start_years = record_group["start_year"].dropna()
-        end_years = record_group["end_year"].dropna()
+    # group by id
+    for id, record_group in employee_df.groupby("ID"):
+        career_start_years = record_group["Career Start Year"].dropna()
+        career_end_years = record_group["Career End Year"].dropna()
 
-        min_date = record_group["Date"].min()
-        max_date = record_group["Date"].max()
+        min_record_year = record_group["Record Year"].min()
+        max_record_year = record_group["Record Year"].max()
 
-        # find start year
-        if len(start_years) == 0:
-            start_year = min_date
+        # find career start year
+        if len(career_start_years) == 0:
+            career_start_year = min_record_year
         else:
-            start_year = min(min_date, start_years.min())
+            career_start_year = min(min_record_year, career_start_years.min())
 
-        # find end year
-        if len(end_years) == 0:
-            end_year = max_date
+        # find career end year
+        if len(career_end_years) == 0:
+            career_end_year = max_record_year
         else:
-            end_year = max(max_date, end_years.max())
+            career_end_year = max(max_record_year, career_end_years.max())
 
-        tenure = end_year - start_year
+        tenure = career_end_year - career_start_year
 
-        # skip employee if all values are missing
-        if pd.isna(start_year) and pd.isna(end_year):
+        # skip employee if all year information is missing
+        if pd.isna(career_start_year) and pd.isna(career_end_year):
             continue
 
         # impute missing year values in each record
-        missing_start_idx = record_group[record_group["start_year"] != start_year].index
-        employee_dataset.loc[missing_start_idx, "start_year"] = start_year
+        missing_start_idx = record_group[record_group["Career Start Year"] != career_start_year].index
+        employee_df.loc[missing_start_idx, "Career Start Year"] = career_start_year
 
-        missing_end_idx = record_group[record_group["end_year"] != end_year].index
-        employee_dataset.loc[missing_end_idx, "end_year"] = end_year
+        missing_end_idx = record_group[record_group["Career End Year"] != career_end_year].index
+        employee_df.loc[missing_end_idx, "Career End Year"] = career_end_year
 
         missing_idx = np.unique(list(missing_start_idx) + list(missing_end_idx))
-        employee_dataset.loc[missing_idx, "tenure"] = tenure
+        employee_df.loc[missing_idx, "Tenure"] = tenure
 
-        # check if start year is less than minimum of record dates
-        if start_year < min_date:
+        # check if career start year is less than minimum of record years
+        if career_start_year < min_record_year:
             new_record = {
-                "employee_code": id,
-                "Date": start_year,
-                "start_year": start_year,
-                "end_year": end_year,
-                "tenure": tenure,
-                "City": "Unknown",
-                "District": "Unknown",
-                "Country": "Unknown",
+                "ID": id,
+                "Record Year": career_start_year,
+                "Career Start Year": career_start_year,
+                "Career End Year": career_end_year,
+                "Tenure": tenure
             }
-
-            # copy other columns
-            for col in ["ID"]:
-                if col not in new_record:
-                    values = record_group[col]
-                    new_record[col] = values.iloc[0]
 
             new_records.append(new_record)
             
     if len(new_records) != 0:
         new_records_df = pd.DataFrame(new_records)
-        employee_dataset = pd.concat([employee_dataset, new_records_df], ignore_index=True)            
+        employee_df = pd.concat([employee_df, new_records_df], ignore_index=True)
 
-    # fill NaN
-    employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]] = employee_dataset.loc[:, ["Grouped_Functions", "merged_religion", "District", "City", "Country"]].fillna("Unknown")
-    agency_dataset.loc[:, ["District", "City", "Country"]] = agency_dataset.loc[:, ["District", "City", "Country"]].fillna("Unknown")
+    return employee_df
 
-    return employee_dataset, agency_dataset
+def extract_period_start_end_year(employee_df):
+    # add columns
+    employee_df["Period Start Year"] = np.nan
+    employee_df["Period End Year"] = np.nan
+
+    # group by employee
+    for id, record_group in employee_df.groupby("ID"):
+        record_group = record_group.sort_values("Record Year")
+
+        # keep career end year
+        career_end_year = record_group["Career End Year"].iloc[0]
+
+        # extract period start and end years        
+        employee_df.loc[record_group.index, "Period Start Year"] = record_group["Record Year"]
+        employee_df.loc[record_group.index, "Period End Year"] = record_group["Record Year"].shift(-1).fillna(career_end_year)
+
+    return employee_df
+
+def fill_na(employee_df, agency_df):
+    employee_df.loc[:, ["Function", "Religion", "District", "City", "Country"]] = employee_df.loc[:, ["Function", "Religion", "District", "City", "Country"]].fillna("Unknown")
+    agency_df.loc[:, ["District", "City", "Country"]] = agency_df.loc[:, ["District", "City", "Country"]].fillna("Unknown")
+    
+    return employee_df, agency_df
+
+def generate_agency(employee_df, agency_df):
+    agency_df["Agency"] = agency_df[["District", "City", "Country"]].apply(lambda record: ", ".join([value for value in record]), axis=1)
+    employee_df["Agency"] = employee_df[["District", "City", "Country"]].apply(lambda record: ", ".join([value for value in record]), axis=1)
+
+    return employee_df, agency_df
+
+def preprocess(employee_df, agency_df):
+    employee_df, agency_df = drop_columns(employee_df, agency_df)
+    employee_df, agency_df = rename_columns(employee_df, agency_df)
+    agency_df = change_inconsistent_date(agency_df)
+    agency_df = change_types(agency_df)
+    employee_df, agency_df = deduct_district_city_and_country(employee_df, agency_df)
+    employee_df = translate_functions(employee_df)
+    employee_df = translate_religions(employee_df)
+    employee_df = impute_career_start_end_year(employee_df)
+    employee_df = extract_period_start_end_year(employee_df)
+    employee_df, agency_df = fill_na(employee_df, agency_df)
+    employee_df, agency_df = generate_agency(employee_df, agency_df)
+
+    return employee_df, agency_df
 
 # load datasets
-employee_dataset = pd.read_excel(join("datasets", "employees.xlsx"))
-agency_dataset = pd.read_excel(join("datasets", "agencies.xlsx"))
+employee_df = pd.read_excel(join("datasets", "employees.xlsx"))
+agency_df = pd.read_excel(join("datasets", "agencies.xlsx"))
 
 # preprocess
-employee_dataset, agency_dataset = preprocess(employee_dataset, agency_dataset)
+employee_df, agency_df = preprocess(employee_df, agency_df)

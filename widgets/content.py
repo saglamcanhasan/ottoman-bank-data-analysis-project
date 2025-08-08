@@ -3,6 +3,8 @@ import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
 from utils.server.filter_parameters import countries, grouped_functions, religions, ids, start, end
 
+cyto.load_extra_layouts()
+
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([
         dbc.Row([
@@ -63,16 +65,35 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
         filter = figure_dict.get("filter", None)
 
         # check figure type
-        graph = cyto.Cytoscape(
-            id=figure_id,
-            style={'width': '100%', 'height': '100%'},
-            layout={'name': 'concentric',  'animate': False},
-            elements=figure,
-            stylesheet=[
-                {"selector": "node", "style": {"label": "data(id)", "width": "data(size)", "height": "data(size)","background-color": "data(color)",  "font-size": "8px"}},
-                {"selector": "edge", "style": {"curve-style": "bezier", "line-color": "#7C0A02","opacity": 0.3 ,"width": 1}},                   
-            ],
-        ) if is_cyto else dcc.Graph(figure=figure, id=figure_id, className="graph")
+        if is_cyto:
+            graph = cyto.Cytoscape(
+                id=figure_id,
+                layout={"name": "concentric"},
+                style={"width": "100%", "height": "100%"},
+                elements=figure,
+                stylesheet=[
+                    {"selector": "node",
+                     "style": {
+                        "label": "data(id)",
+                        "width": "data(size)",
+                        "height": "data(size)",
+                        "background-color": "data(color)",
+                        "font-size": "8px",
+                        "font-family": "Cormorant SC, Georgia, serif" 
+                    }},
+                    {"selector": "edge",
+                     "style": {
+                        "curve-style": "bezier",
+                        "line-color": "#7C0A02",
+                        "opacity": 0.2,
+                        "width": "data(size)"
+                    }},                   
+                ],
+            )
+
+        else:
+            graph = dcc.Graph(figure=figure, id=figure_id, className="graph")
+
         graph_component = dcc.Loading(
             graph,
             type="dot",

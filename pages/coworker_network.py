@@ -1,13 +1,13 @@
 import dash
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-from utils.graph.graph import plot_bar, plot, bar
-from utils.server.coworker_network_analysis import generate_filtered_cowork_networkdf, generate_filtered_cowork_elements, generate_filtered_cowork_bardf, generate_filtered_top_connected_emp
+from utils.graph.graph import bar
+from utils.server.coworker_network_analysis import coworker_network
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 
 dash.register_page(__name__, path="/coworker-network")
 
-sections = ["Top Co-workers Graph", "Most Connected Employees", "Longest Working Partnerships"]
+sections = ["Co-workers Graph", "Most Connected Employees", "Longest Working Partnerships"]
 
 
 def layout():
@@ -21,11 +21,11 @@ def layout():
 
         section(
             sections[0],
-            "This graph displays the top 50 employee's social network. Each node is an employee, and a link is created between two nodes if they worked at the same agency during the same time period. Explore this network to find clusters of colleagues (professional cliques) and central individuals who connected disparate parts of the organization.",
+            "This graph displays the employee social network. Each node represents an employee, and an edge connects two employees only if they share one of the top 1,000 longest overlapping work periods after the current filters are applied. This focuses the visualization on the strongest professional ties, making clusters and central connectors easier to identify. Adjusting the filters may reveal different connections or bring other relationships into view.",
             {
-                "cowork-network-graph": {
+                "coworker-network": {
                     "figure":{},
-                    "filter": filter("cowork-network-graph", True, True, True, True, True)
+                    "filter": filter("coworker-network", True, True, True, True, True)
 
                 }
             },
@@ -38,9 +38,9 @@ def layout():
             sections[1],
             "This table ranks employees by their 'degree centrality' - the number of unique colleagues they worked with during their tenure. Individuals at the top of this list were the most central social connectors in the bank's network.",
             {
-                "degree-centrality": {
+                "employee-connection": {
                     "figure": {},
-                    "filter": filter("degree-centrality", True, True, True, True, True)
+                    "filter": filter("employee-connection", True, True, True, True, True)
                 }
             }
         ),
@@ -51,9 +51,9 @@ def layout():
             sections[2],
             "This bar chart showcases the top 10 employee pairs who have spent the longest time working together at the same agency. By analyzing their overlap years, we identify the most enduring professional partnerships within the Ottoman Bank.",
             {
-                "connected-employees": {
+                "partner-employees": {
                     "figure": {},
-                    "filter": filter("connected-employees", True, True, True, True, True)
+                    "filter": filter("partner-employees", True, True, True, True, True)
                 }
             }
         )
@@ -61,36 +61,11 @@ def layout():
     
     
 # callbacks
-create_agency_dropdown_callback("cowork-network-graph")
-create_figure_callback(
-    generate_df=generate_filtered_cowork_networkdf,
-    generate_figure=generate_filtered_cowork_elements,
-    figure_id="cowork-network-graph",
-    agency=True,
-    grouped_function=False,
-    religion=True,
-    id=False,
-    time_period=True,
-    is_cyto=True
-)
+create_agency_dropdown_callback("coworker-network")
+create_figure_callback(lambda **kwargs: coworker_network(**kwargs)[0], lambda elements: elements, "coworker-network", True, True, True, True, True, True)
 
-create_agency_dropdown_callback("degree-centrality")
-create_figure_callback(
-    generate_df=generate_filtered_top_connected_emp, 
-    generate_figure=lambda df: plot_bar(df,"connections",  "employee", "Employee vs. Degree Centrality", "Degree of Centrality - Unique Collauges", "Employee", horizontal=True),
-    figure_id="degree-centrality",    
-    agency=True, grouped_function=True, religion=True, id=True, time_period=True  
-)
+create_agency_dropdown_callback("employee-connection")
+create_figure_callback(lambda **kwargs: coworker_network(**kwargs, top=10)[1], lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
 
-
-
-create_agency_dropdown_callback("connected-employees")
-create_figure_callback(
-    generate_df=generate_filtered_cowork_bardf,  # The named argument (keyword argument)
-    generate_figure=lambda df: plot_bar(df,"overlap_years",  "employee_pair", "Employee Pairs vs. Years of Cowork","overlap years",  "employees", horizontal=True),
-    figure_id="connected-employees",              # The figure ID as a positional argument
-    agency=True, grouped_function=True, religion=True, id=True, time_period=True  # Other boolean arguments
-)
-
-
-
+create_agency_dropdown_callback("partner-employees")
+create_figure_callback(lambda **kwargs: coworker_network(**kwargs, top=10)[2], lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)

@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from utils.server.data_loader import employee_df, agency_df
 
 def employee_count(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):

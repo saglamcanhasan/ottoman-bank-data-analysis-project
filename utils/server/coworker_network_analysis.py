@@ -1,183 +1,135 @@
-from itertools import combinations
-from utils.graph.graph  import build_cyto_from_networkx
 import pandas as pd
-import networkx as nx
+from itertools import combinations
 from utils.server.data_loader import employee_df
+from intervaltree import IntervalTree
+from plotly.colors import sample_colorscale
 
+def coworker_network(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
+    # copy dataset
+    df = employee_df.copy()
 
-def find_coworking_network_df(df, min_years=5): # for all data
-    overlaps = []
-    for emp1, emp2 in combinations(df.to_dict("records"), 2):
-        if emp1["Agency"] == emp2["Agency"]:
-            if (pd.isna(emp1["Career Start Year"]) or pd.isna(emp1["Career End Year"]) or
-                pd.isna(emp2["Career Start Year"]) or pd.isna(emp2["Career End Year"])):
-                continue
+    # extract start and end
+    time_period_start_year, time_period_end_year = selected_time_period
 
-            if emp1["ID"] == emp2["ID"]:
-                continue
-                
-            if emp1["Career Start Year"] <= emp2["Career End Year"] and emp2["Career Start Year"] <= emp1["Career End Year"]:
-                overlap_start = max(emp1["Career Start Year"], emp2["Career Start Year"])
-                overlap_end = min(emp1["Career End Year"], emp2["Career End Year"])
-                overlap_years = overlap_end - overlap_start + 1
-                
-                if overlap_years >= min_years:
-                    overlaps.append({
-                        "employee_1": emp1["ID"],
-                        "employee_2": emp2["ID"],
-                        "Agency": emp1["Agency"],
-                        "overlap_years": overlap_years,
-                        "start": overlap_start,
-                        "end": overlap_end
-                    })
+    # drop employees with missing start year
+    df = df.dropna(subset=["Career Start Year"])
 
-    return pd.DataFrame(overlaps)
+    # drop records outside the range
+    df = df[(df["Period End Year"] >= time_period_start_year) & (df["Period Start Year"] <= time_period_end_year)]
 
-def sample_rand_df(df, num): # sample num amount of random rows from df does not give err if df < num
-    sample_size = min(num, len(df))
-    return df.sample(n=sample_size, random_state=42)
+    # drop records with unknown location
+    df = df[~((df["District"] == "Unknown") & (df["City"] == "Unknown") & (df["Country"] == "Unknown"))]
 
-
-sample_df = sample_rand_df(employee_df, 1000)
-
-def generate_filtered_cowork_networkdf(
-    selected_countries=None,
-    selected_cities=None,
-    selected_districts=None,
-    selected_agencies=None,
-    selected_time_period=None,
-    selected_religions=None,
-    selected_id=None
-):
-    filtered = sample_df.copy()
-    selected_startyear, selected_endyear = selected_time_period if selected_time_period else (None, None)
-    
-    # Basic filters
-    if selected_countries:
-        filtered = filtered[filtered["Country"].isin(selected_countries)]
-    if selected_cities:
-        filtered = filtered[filtered["City"].isin(selected_cities)]
-    if selected_districts:
-        filtered = filtered[filtered["District"].isin(selected_districts)]
-    if selected_agencies:
-        filtered = filtered[filtered["Agency"].isin(selected_agencies)]
-    if selected_religions:
-        filtered = filtered[filtered["Religion"].isin(selected_religions)]
-
-    # Timeframe filtering
-    if selected_startyear is not None and selected_endyear is not None:
-        filtered = filtered.copy()
-        filtered["Career Start Year"] = pd.to_numeric(filtered["Career Start Year"], errors="coerce").fillna(0).astype(int)
-        filtered["Career End Year"] = pd.to_numeric(filtered["Career End Year"], errors="coerce").fillna(9999).astype(int)
-
-        # Keep only rows where the time range overlaps with selected range
-        filtered = filtered[
-            (filtered["Career Start Year"] <= selected_endyear) &
-            (filtered["Career End Year"] >= selected_startyear)
-        ]
-
-    return sample_rand_df(filtered, 100)
-
-def generate_filtered_cowork_elements(df): #wrapper function just to pass
-    cowork_df = find_coworking_network_df(df, 5)
-    G = build_cowork_graph_from_df(cowork_df)
-    
-    return build_cyto_from_networkx(G, is_colored=True)
-
-
-
-def generate_filtered_cowork_bardf(
-    selected_countries=None,
-    selected_cities=None,
-    selected_districts=None,
-    selected_agencies=None,
-    selected_time_period=None,
-    selected_religions=None,
-    selected_grouped_functions=None,
-    selected_ids=None,
-):
-    df = generate_filtered_cowork_networkdf(selected_countries,selected_cities,selected_districts,selected_agencies,
-    selected_time_period,selected_religions,None)
-
-    if df.empty:
-        return pd.DataFrame()  # Return an empty dataframe if no data is found
-    
-    if selected_grouped_functions:
-        df = df[df["Grouped_Functions"].isin(selected_grouped_functions)]
-        
-    cowork_df = find_coworking_network_df(df, 5)
-    
-    #print(cowork_df.columns)
-    
-    if 'employee_1' in cowork_df.columns and 'employee_2' in cowork_df.columns:
-        cowork_df['employee_pair'] = cowork_df['employee_1'].astype(str) + " - " + cowork_df['employee_2'].astype(str)
-    else:
-        return pd.DataFrame()  # Return empty DataFrame if columns are missing
-
-
-    cowork_df = cowork_df.dropna(subset=['employee_pair'])
-    cowork_df = cowork_df.drop_duplicates(subset=['employee_pair', 'overlap_years'])
-    cowork_df = cowork_df.sort_values(by='overlap_years', ascending=False).head(10)
-    
-    return cowork_df.nlargest(10, 'overlap_years')
-
-
-
-def generate_filtered_top_connected_emp(
-    selected_countries=None,
-    selected_cities=None,
-    selected_districts=None,
-    selected_agencies=None,
-    selected_time_period=None,
-    selected_religions=None,
-    selected_grouped_functions=None,
-    selected_ids=None,
-):
-    df = generate_filtered_cowork_networkdf(selected_countries,selected_cities,selected_districts,selected_agencies,
-    selected_time_period,selected_religions,None)
-
-    if df.empty:
-        return pd.DataFrame()  # Return an empty dataframe if no data is found
-    
-    if selected_grouped_functions:
-        df = df[df["Grouped_Functions"].isin(selected_grouped_functions)]
+    # filter dataset
     if selected_ids:
         df = df[df["ID"].isin(selected_ids)]
+
+    if selected_grouped_functions is not None and len(selected_grouped_functions) != 0:
+        df = df[df["Function"].isin(selected_grouped_functions)]
+
+    if selected_religions is not None and len(selected_religions) != 0:
+        df = df[df["Religion"].isin(selected_religions)]
+
+    if selected_districts is not None and len(selected_districts) != 0:
+        df = df[df["District"].isin(selected_districts)]
+
+    if selected_cities is not None and len(selected_cities) != 0:
+        df = df[df["City"].isin(selected_cities)]
+
+    if selected_countries is not None and len(selected_countries) != 0:
+        df = df[df["Country"].isin(selected_countries)]
+
+    # build agency trees
+    agency_trees = dict()
+    for agency, agency_group in df.groupby("Agency"):
+        employee_trees = dict()
+
+        for id, employee_group in agency_group.groupby("ID"):
+            employee_tree = IntervalTree()
+
+            for _, record in employee_group.iterrows():
+                employee_tree[record["Period Start Year"]:record["Period End Year"]+1] = record.to_dict()
+
+            employee_trees[id] = employee_tree
             
-    cowork_df = find_coworking_network_df(df, 5)
-    cowork_df = get_most_connected_employees(cowork_df, 10)
+        agency_trees[agency] = employee_trees
+
+    # find overlaps
+    overlaps = dict()
+    for agency, trees in agency_trees.items():
+        ids = list(trees.keys())
+
+        for first_employee, second_employee in combinations(ids, 2):
+            if first_employee < second_employee:
+                first_employee, second_employee = second_employee, first_employee
+            first_tree = trees[first_employee]
+            second_tree = trees[second_employee]
+
+            duration = 0
+
+            for interval in first_tree:
+                matches = second_tree.overlap(interval.begin, interval.end)
+                for match in matches:
+                    start_intersection = max(interval.begin, match.begin)
+                    end_intersection = min(interval.end, match.end)
+
+                    duration += end_intersection - start_intersection - (0 if end_inclusive else 1)
+
+            if duration != 0:
+                key = (first_employee, second_employee)
+
+                if key in overlaps:
+                    overlaps[key]["Duration"] += duration
+
+                else:
+                    overlaps[key] = {
+                        "First Employee": first_employee,
+                        "Second Employee": second_employee,
+                        "Duration": duration,
+                    }
+
+    overlaps_df = pd.DataFrame(overlaps.values(), columns=["First Employee", "Second Employee", "Duration"])
+
+    # filter most important connections
+    edges_df = overlaps_df.sort_values(by="Duration", ascending=False).head(1000)
     
-    return cowork_df
+    first = edges_df.groupby("First Employee")["Duration"].sum()
+    second = edges_df.groupby("Second Employee")["Duration"].sum()
+    durations_df = first.add(second, fill_value=0)
 
+    elements = list()
+    min_duration = durations_df.min()
+    max_duration = durations_df.max()
+    for index, record in durations_df.items():
+        normalized_weight = (record - min_duration)/max_duration
+        elements.append({
+            "data": {
+                "id": index,
+                "weight": record,
+                "size": 10 + normalized_weight*40,
+                "color": sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], [normalized_weight])[0]
+            }
+        })
+    min_duration = edges_df["Duration"].min()
+    max_duration = edges_df["Duration"].max()
+    for _, record in edges_df.iterrows():
+        normalized_weight = (record["Duration"] - min_duration)/max_duration
+        elements.append({
+            "data": {
+                "source": record["First Employee"],
+                "target": record["Second Employee"],
+                "weight": record["Duration"],
+                "size": 1 + normalized_weight*4,
+            }
+        })
 
-# graph node places precomputation, if needed
-def build_cowork_graph_from_df(df):
-    G = nx.Graph()
-    for _, row in df.iterrows():
-        G.add_edge(
-            row["employee_1"],
-            row["employee_2"],
-            weight=row["overlap_years"],
-            agency=row["Agency"],
-            start=row["start"],
-            end=row["end"],
-        )
-    return G
+    first = overlaps_df["First Employee"].value_counts()
+    second = overlaps_df["Second Employee"].value_counts()
+    connections_df = first.add(second, fill_value=0).sort_values(ascending=False).head(top).reset_index().rename(columns={"index": "Employee", "count": "Connections"})
 
+    partnership_df = overlaps_df.sort_values(by="Duration", ascending=False).head(top)
+    partnership_df["Co-Workers"] = (partnership_df["First Employee"] + " & " + partnership_df["Second Employee"])
+    partnership_df.drop(columns=["First Employee", "Second Employee"], inplace=True)
+    partnership_df.rename(columns={"Duration": "Years"}, inplace=True)
 
-
-def get_most_connected_employees(df, top_n=10):
-    if df.empty:
-        return pd.DataFrame()
-    
-    df = df.dropna(subset=['employee_1', 'employee_2'])
-    df = df.drop_duplicates(subset=['employee_1', 'employee_2'])
-    
-    employee_connections = pd.concat([df['employee_1'], df['employee_2']]).value_counts()
-
-    df_connections = employee_connections.reset_index()
-    df_connections.columns = ['employee', 'connections']
-
-    df_connections = df_connections.sort_values(by='connections', ascending=False).head(top_n)
-    
-    return df_connections
+    return elements, connections_df, partnership_df

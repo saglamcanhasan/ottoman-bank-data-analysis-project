@@ -58,10 +58,10 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("total-employees")
-create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year", 1), "total-employees", True, True, True, True, True)
+create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year", 0), "total-employees", True, True, True, True, True)
 
 create_agency_dropdown_callback("agency-number")
-create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year", 1), "agency-number", True, False, False, False, True)
+create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year", 0), "agency-number", True, False, False, False, True)
 
 create_agency_dropdown_callback("employee-turnover")
-create_figure_callback(employee_turnover, lambda df: combine([bar(df, "Year", "Hires", "", 1), bar(df, "Year", "Departures", "", 3)], [plot(df, "Year", "Net Change", "", 0)], "Year", ["Hires/Departures", "Net Change"], "Number of Hires & Departures vs. Year"), "employee-turnover", True, True, True, True, True)
+create_figure_callback(employee_turnover, lambda df: combine([bar(df, "Year", "Hires", "", 0), bar(df, "Year", "Departures", "", 3)], [plot(df, "Year", "Net Change", "", 2)], "Year", ["Hires/Departures", "Net Change"], "Number of Hires & Departures vs. Year"), "employee-turnover", True, True, True, True, True)

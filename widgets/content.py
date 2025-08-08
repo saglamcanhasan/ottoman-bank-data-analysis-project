@@ -141,7 +141,7 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
     return dbc.Container(containers, className="section-container", fluid=True)
 
 
-def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
+def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, search: bool=False):
     filter_rows = []
 
     if agency:
@@ -191,6 +191,22 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
                     value=[],
                     multi=True,
                     placeholder="select grouped functions",
+                    className="filter-dropdown"
+                )
+            ])
+        )
+        
+    if search:  # Searchable Dropdown for Employee ID
+        filter_rows.append(
+            dbc.Row([
+                dbc.Label("Search For Employee ID", html_for=f"{filter_id}-id-searchbar", className="filter-title"),
+                dcc.Dropdown(
+                    id=f"{filter_id}-id-searchbar",
+                    options=[{"label": id, "value": id} for id in ids],
+                    value=[], 
+                    multi=True, 
+                    searchable=True,
+                    placeholder="Search and select Employee IDs",
                     className="filter-dropdown"
                 )
             ])

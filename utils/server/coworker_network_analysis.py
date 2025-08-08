@@ -86,8 +86,6 @@ def generate_filtered_cowork_elements(df): #wrapper function just to pass
 
 
 
-
-
 def generate_filtered_cowork_bardf(
     selected_countries=None,
     selected_cities=None,
@@ -109,14 +107,47 @@ def generate_filtered_cowork_bardf(
         
     cowork_df = find_coworking_network_df(df, 5)
     
-    print(cowork_df.columns)
+    #print(cowork_df.columns)
     
     if 'employee_1' in cowork_df.columns and 'employee_2' in cowork_df.columns:
         cowork_df['employee_pair'] = cowork_df['employee_1'].astype(str) + " - " + cowork_df['employee_2'].astype(str)
     else:
         return pd.DataFrame()  # Return empty DataFrame if columns are missing
 
+
+    cowork_df = cowork_df.dropna(subset=['employee_pair'])
+    cowork_df = cowork_df.drop_duplicates(subset=['employee_pair', 'overlap_years'])
+    cowork_df = cowork_df.sort_values(by='overlap_years', ascending=False).head(10)
+    
     return cowork_df.nlargest(10, 'overlap_years')
+
+
+
+def generate_filtered_top_connected_emp(
+    selected_countries=None,
+    selected_cities=None,
+    selected_districts=None,
+    selected_agencies=None,
+    selected_time_period=None,
+    selected_religions=None,
+    selected_grouped_functions=None,
+    selected_ids=None,
+):
+    df = generate_filtered_cowork_networkdf(selected_countries,selected_cities,selected_districts,selected_agencies,
+    selected_time_period,selected_religions,None)
+
+    if df.empty:
+        return pd.DataFrame()  # Return an empty dataframe if no data is found
+    
+    if selected_grouped_functions:
+        df = df[df["Grouped_Functions"].isin(selected_grouped_functions)]
+    if selected_ids:
+        df = df[df["ID"].isin(selected_ids)]
+            
+    cowork_df = find_coworking_network_df(df, 5)
+    cowork_df = get_most_connected_employees(cowork_df, 10)
+    
+    return cowork_df
 
 
 # graph node places precomputation, if needed
@@ -135,10 +166,18 @@ def build_cowork_graph_from_df(df):
 
 
 
-#for bar plot
-def get_most_connected_employees(G, top_n=10):
-    degrees = dict(G.degree())  # dict: {employee_id: degree}
-    # Convert to DataFrame for plotting
-    df_degree = pd.DataFrame(degrees.items(), columns=['employee', 'connections'])
-    df_degree = df_degree.sort_values(by='connections', ascending=False).head(top_n)
-    return df_degree
+def get_most_connected_employees(df, top_n=10):
+    if df.empty:
+        return pd.DataFrame()
+    
+    df = df.dropna(subset=['employee_1', 'employee_2'])
+    df = df.drop_duplicates(subset=['employee_1', 'employee_2'])
+    
+    employee_connections = pd.concat([df['employee_1'], df['employee_2']]).value_counts()
+
+    df_connections = employee_connections.reset_index()
+    df_connections.columns = ['employee', 'connections']
+
+    df_connections = df_connections.sort_values(by='connections', ascending=False).head(top_n)
+    
+    return df_connections

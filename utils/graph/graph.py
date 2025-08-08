@@ -107,16 +107,15 @@ def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, titl
 
     return supfig
 
-def plot_bar(df, x, y, title, xlabel, ylabel, top_n=10, horizontal=True):
+
+def plot_bar(df, x, y, title, xlabel, ylabel, horizontal=True):
     
     if df.empty:
         return px.bar()  # Returning an empty bar chart
-    
-    df = df.dropna(subset=[x])
-    df_sorted = df.sort_values(by=x, ascending=False).head(top_n)
+
 
     fig = px.bar(
-        df_sorted,
+        df,
         x=x ,
         y=y ,
         orientation='h' if horizontal else 'v',
@@ -132,42 +131,13 @@ def plot_bar(df, x, y, title, xlabel, ylabel, top_n=10, horizontal=True):
             yaxis=dict(autorange='reversed')  # This ensures largest values are at the top
         )
     
-    fig.update_layout(
-        font=dict(
-            family="Cormorant SC",
-            size=16,
-            color="#7C0A02",
-            weight=600
-        ),
-        title_font=dict(
-            family="Cormorant SC",
-            size=28,
-            color="#7C0A02"
-        ),
-        hoverlabel=dict(
-            font_family="Cormorant Garamond",
-            font_size=20,
-            font_color="#EFEBD6",
-            bgcolor="#00587A",
-            bordercolor="#B08D57"
-        ),
-        xaxis=dict(
-            showgrid=True,
-            gridcolor="#DFC6A0",
-            linecolor="#DFC6A0",
-            zerolinecolor="#B08D57",
-        ),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor="#DFC6A0",
-            linecolor="#DFC6A0",
-            zerolinecolor="#B08D57",
-        ),
-        paper_bgcolor="#EFEBD6",
-        plot_bgcolor="#EFEBD6",
-    )
+    theme(fig)
 
+    fig.update_layout(
+        showlegend=False,
+    )
     return fig
+
 
 
 

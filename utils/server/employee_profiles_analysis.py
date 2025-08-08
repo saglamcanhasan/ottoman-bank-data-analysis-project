@@ -1,16 +1,16 @@
 import pandas as pd
 from utils.server.data_loader import employee_df
 
-def generate_employee_profile_df(selected_search_ids=None):
-    if selected_search_ids:
-        employee_data = employee_df[employee_df['ID'].isin(selected_search_ids)]
+def generate_employee_profile_df(selected_ids=None):
+    if selected_ids:
+        employee_data = employee_df[employee_df['ID'].isin(selected_ids)]
     else:
         employee_data = employee_df
     return employee_data
 
-def get_multiple_employees_gantt_data(selected_search_ids=None):
+def get_multiple_employees_gantt_data(selected_ids=None):
     
-    df = generate_employee_profile_df(selected_search_ids)
+    df = generate_employee_profile_df(selected_ids)
     
     if df.empty:
         return pd.DataFrame()

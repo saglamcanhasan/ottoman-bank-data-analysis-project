@@ -23,7 +23,7 @@ def layout():
             {
                 "profile-card": {
                     "figure": {},
-                    "filter": filter("profile-card", False, False, False, False, False, True)
+                    "filter": filter("profile-card", False, False, False, True, False)
                 },
                 "career-timeline": {
                     "figure": {}
@@ -33,9 +33,4 @@ def layout():
     ]
     
 
-create_figure_callback(
-    generate_df=get_multiple_employees_gantt_data,  # The named argument (keyword argument)
-    generate_figure=lambda df: plot_gantt(df,"Start",  "Finish", "Task" ,"Task",  "How many years", "Countries Employee Worked in"),
-    figure_id="profile-card",       
-    agency=False, grouped_function=False, religion=False, id=False, time_period=False, search = True
-)
+create_figure_callback(get_multiple_employees_gantt_data, lambda df: plot_gantt(df, "Start",  "Finish", "Task" ,"Task",  "How many years", "Countries Employee Worked in"), "career-timeline", False, False, False, True, False, filter_id="profile-card")

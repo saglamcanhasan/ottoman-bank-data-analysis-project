@@ -1,7 +1,7 @@
 from dash import Input, Output, callback
 from utils.server.filter_parameters import countries, cities, districts
 
-def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, is_cyto=False, filter_id: str="", search: bool=False):
+def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, is_cyto=False, filter_id: str=""):
     # get figure id
     if len(filter_id) == 0:
         filter_id = figure_id
@@ -34,10 +34,6 @@ def create_figure_callback(generate_df, generate_figure, figure_id: str, agency:
     if time_period:
         inputs.append(Input(f"{filter_id}-time-period-slider", "value"))
         arg_names.append("selected_time_period")
-
-    if search:
-        inputs.append(Input(f"{filter_id}-id-searchbar", "value"))
-        arg_names.append("selected_search_ids")
         
     @callback(
         Output(figure_id, "figure" if not is_cyto else "elements"),

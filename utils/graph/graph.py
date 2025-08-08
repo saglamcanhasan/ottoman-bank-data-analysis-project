@@ -51,7 +51,6 @@ def theme(fig):
         ),
         paper_bgcolor="#EFEBD6",
         plot_bgcolor="#EFEBD6",
-        showlegend=False,
     )
 
 def plot(df, x_label, y_label, title, color_index=0):
@@ -71,7 +70,7 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
     if orientation == "h":
         x_label, y_label = y_label, x_label
 
-    colors = colors[color_index % len(colors)] if color_index >= 0 else sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], np.linspace(1, 0, len(df)))
+    marker_colors = colors[color_index % len(colors)] if color_index >= 0 else sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], np.linspace(1, 0, len(df)))
     fig = px.bar(df, x_label, y_label, title=title, orientation=orientation)
 
     theme(fig)
@@ -82,7 +81,7 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
         )
 
     fig.update_traces(
-        marker_color=colors,
+        marker_color=marker_colors,
         name=y_label if orientation == "v" else x_label
     )
 

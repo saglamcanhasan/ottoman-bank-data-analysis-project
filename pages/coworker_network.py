@@ -34,7 +34,7 @@ def layout():
 
                 }
             },
-            is_cytoscape = True
+            is_cyto = True
         ),
 
         horizontal_separator(),

@@ -1,11 +1,9 @@
 import numpy as np
 import time
 import pandas as pd
-import networkx as nx
 from intervaltree import IntervalTree
 from itertools import combinations
 from data_loader import employee_df
-#from utils.graph.graph  import build_cyto_from_networkx
 
 def coworker_network(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
     # copy dataset
@@ -62,7 +60,7 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
     overlaps = dict()
     for agency, trees in agency_trees.items():
         ids = list(trees.keys())
-        
+
         for first_employee, second_employee in combinations(ids, 2):
             if first_employee < second_employee:
                 first_employee, second_employee = second_employee, first_employee
@@ -103,83 +101,5 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
     top_employees = durations_df.sort_values(ascending=False).head(top).index.tolist()
 
     overlaps_df = overlaps_df[(overlaps_df["First Employee"].isin(top_employees)) & (overlaps_df["Second Employee"].isin(top_employees))]
-    print(len(overlaps_df))
-    print(time.time() - START)
 
-    START = time.time()
-
-    G = nx.Graph()
-    for _, record in overlaps_df.iterrows():
-        G.add_edge(
-            record["First Employee"],
-            record["Second Employee"],
-            weight=record["Duration"],
-        )
-    print(time.time() - START)
-    return G
-coworker_network([],[],[],[],[],[])
-"""
-def generate_filtered_cowork_elements(df): #wrapper function just to pass
-    cowork_df = find_coworking_network_df(df, 5)
-    G = build_cowork_graph_from_df(cowork_df)
-    
-    return build_cyto_from_networkx(G, is_colored=True)
-
-
-
-
-
-def generate_filtered_cowork_bardf(
-    selected_countries=None,
-    selected_cities=None,
-    selected_districts=None,
-    selected_agencies=None,
-    selected_time_period=None,
-    selected_religions=None,
-    selected_grouped_functions=None,
-    selected_ids=None,
-):
-    df = generate_filtered_cowork_networkdf(selected_countries,selected_cities,selected_districts,selected_agencies,
-    selected_time_period,selected_religions,None)
-
-    if df.empty:
-        return pd.DataFrame()  # Return an empty dataframe if no data is found
-    
-    if selected_grouped_functions:
-        df = df[df["Grouped_Functions"].isin(selected_grouped_functions)]
-        
-    cowork_df = find_coworking_network_df(df, 5)
-    
-    print(cowork_df.columns)
-    
-    if 'employee_1' in cowork_df.columns and 'employee_2' in cowork_df.columns:
-        cowork_df['employee_pair'] = cowork_df['employee_1'].astype(str) + " - " + cowork_df['employee_2'].astype(str)
-    else:
-        return pd.DataFrame()  # Return empty DataFrame if columns are missing
-
-    return cowork_df.nlargest(10, 'overlap_years')
-
-
-# graph node places precomputation, if needed
-def build_cowork_graph_from_df(df):
-    G = nx.Graph()
-    for _, row in df.iterrows():
-        G.add_edge(
-            row["employee_1"],
-            row["employee_2"],
-            weight=row["overlap_years"],
-            agency=row["agency"],
-            start=row["start"],
-            end=row["end"],
-        )
-    return G
-
-
-
-#for bar plot
-def get_most_connected_employees(G, top_n=10):
-    degrees = dict(G.degree())  # dict: {employee_id: degree}
-    # Convert to DataFrame for plotting
-    df_degree = pd.DataFrame(degrees.items(), columns=['employee', 'connections'])
-    df_degree = df_degree.sort_values(by='connections', ascending=False).head(top_n)
-    return df_degree"""
+    return overlaps_df

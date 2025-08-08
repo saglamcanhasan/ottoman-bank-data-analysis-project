@@ -69,14 +69,14 @@ def agency_count(selected_countries, selected_cities, selected_districts, select
     time_period_start_year, time_period_end_year = selected_time_period
 
     # change closing date type
-    df["Closing Date"] = df["Closing Date"].fillna(str(time_period_end_year+1)).astype(int)
+    df["Closing Year"] = df["Closing Year"].fillna(str(time_period_end_year+1)).astype(int)
 
     # count open agencies
     open_agencies_df = pd.Series(0, dtype=int, index=np.arange(time_period_start_year, time_period_end_year+1))
 
     for _, agency in df.iterrows():
-        open_year = agency["Opening Date"]
-        close_year = agency["Closing Date"]
+        open_year = agency["Opening Year"]
+        close_year = agency["Closing Year"]
 
         # skip out-of-range
         if close_year < time_period_start_year or open_year > time_period_end_year:

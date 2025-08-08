@@ -1,5 +1,4 @@
 import numpy as np
-import time
 import pandas as pd
 from intervaltree import IntervalTree
 from itertools import combinations
@@ -7,7 +6,6 @@ from data_loader import employee_df
 
 def coworker_network(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
     # copy dataset
-    START = time.time()
     df = employee_df.copy()
 
     # extract start and end
@@ -90,7 +88,6 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
                         "Duration": duration,
                     }
 
-
     overlaps_df = pd.DataFrame(overlaps.values())
 
     # filter top employees
@@ -98,8 +95,17 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
     second = overlaps_df.groupby("Second Employee")["Duration"].sum()
     durations_df = first.add(second, fill_value=0)
 
-    top_employees = durations_df.sort_values(ascending=False).head(top).index.tolist()
+    durations_df = durations_df.sort_values(ascending=False).head(top)
+    top_employees = durations_df.index.tolist()
 
-    overlaps_df = overlaps_df[(overlaps_df["First Employee"].isin(top_employees)) & (overlaps_df["Second Employee"].isin(top_employees))]
+    edges_df = overlaps_df[(overlaps_df["First Employee"].isin(top_employees)) & (overlaps_df["Second Employee"].isin(top_employees))]
 
-    return overlaps_df
+    first = overlaps_df["First Employee"].value_counts()
+    second = overlaps_df["Second Employee"].value_counts()
+    connections_df = first.add(second, fill_value=0).sort_values(ascending=False).head(top)
+
+    partnership_df = overlaps_df.sort_values(by="Duration", ascending=False).head(top)
+    partnership_df["Coworkers"] = (partnership_df["First Employee"] + " & " + partnership_df["Second Employee"])
+    partnership_df.drop(columns=["First Employee", "Second Employee"], inplace=True)
+
+    return edges_df, connections_df, partnership_df

@@ -69,6 +69,5 @@ def religion_distribution(selected_countries, selected_cities, selected_district
 
     religion_counts_df.reset_index(inplace=True)
     religion_counts_df.rename(columns={"index": "Year"}, inplace=True)
-    print(religion_counts_df)
 
     return religion_counts_df

@@ -21,7 +21,7 @@ def layout():
 
         section(
             sections[0],
-            "This graph displays the employee social network. Each node represents an employee, and an edge connects two employees only if they share one of the top 1,000 longest overlapping work periods after the current filters are applied. This focuses the visualization on the strongest professional ties, making clusters and central connectors easier to identify. Adjusting the filters may reveal different connections or bring other relationships into view.",
+            "This graph displays the employee social network. Each node represents an employee, with its size proportional to the sum of the durations of all their connections. Each edge represents one of the top 1,000 longest overlapping work periods between two employees after the current filters are applied, with edge thickness proportional to the duration of that connection. This focus on the strongest professional ties helps highlight central connectors and clusters in the network. Adjusting the filters may reveal different relationships, shift the relative importance of employees, or bring other links into view.",
             {
                 "coworker-network": {
                     "figure":{},

@@ -74,7 +74,7 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
                 stylesheet=[
                     {"selector": "node",
                      "style": {
-                        "label": "data(id)",
+                        "label": "data(label)",
                         "width": "data(size)",
                         "height": "data(size)",
                         "background-color": "data(color)",

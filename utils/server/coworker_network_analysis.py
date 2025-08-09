@@ -1,8 +1,10 @@
 import pandas as pd
 from itertools import combinations
-from utils.server.data_loader import employee_df
 from intervaltree import IntervalTree
+from utils.server.filter import filter
 from plotly.colors import sample_colorscale
+from collections import defaultdict
+from utils.server.data_loader import employee_df
 
 def coworker_network(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
     # copy dataset
@@ -14,30 +16,11 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
     # drop employees with missing start year
     df = df.dropna(subset=["Career Start Year"])
 
-    # drop records outside the range
-    df = df[(df["Period End Year"] >= time_period_start_year) & (df["Period Start Year"] <= time_period_end_year)]
-
     # drop records with unknown location
     df = df[~((df["District"] == "Unknown") & (df["City"] == "Unknown") & (df["Country"] == "Unknown"))]
 
     # filter dataset
-    if selected_ids:
-        df = df[df["ID"].isin(selected_ids)]
-
-    if selected_grouped_functions is not None and len(selected_grouped_functions) != 0:
-        df = df[df["Function"].isin(selected_grouped_functions)]
-
-    if selected_religions is not None and len(selected_religions) != 0:
-        df = df[df["Religion"].isin(selected_religions)]
-
-    if selected_districts is not None and len(selected_districts) != 0:
-        df = df[df["District"].isin(selected_districts)]
-
-    if selected_cities is not None and len(selected_cities) != 0:
-        df = df[df["City"].isin(selected_cities)]
-
-    if selected_countries is not None and len(selected_countries) != 0:
-        df = df[df["Country"].isin(selected_countries)]
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
 
     # build agency trees
     agency_trees = dict()
@@ -55,7 +38,7 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
         agency_trees[agency] = employee_trees
 
     # find overlaps
-    overlaps = dict()
+    overlaps = defaultdict(dict)
     for agency, trees in agency_trees.items():
         ids = list(trees.keys())
 
@@ -77,20 +60,25 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
 
             if duration != 0:
                 key = (first_employee, second_employee)
-
-                if key in overlaps:
-                    overlaps[key]["Duration"] += duration
-
-                else:
-                    overlaps[key] = {
-                        "First Employee": first_employee,
-                        "Second Employee": second_employee,
-                        "Duration": duration,
-                    }
+                overlaps[key] = {
+                    "First Employee": first_employee,
+                    "Second Employee": second_employee,
+                    "Duration": duration,
+                }
 
     overlaps_df = pd.DataFrame(overlaps.values(), columns=["First Employee", "Second Employee", "Duration"])
 
-    # filter most important connections
+    # find top connections
+    first = overlaps_df["First Employee"].value_counts()
+    second = overlaps_df["Second Employee"].value_counts()
+    connections_df = first.add(second, fill_value=0).sort_values(ascending=False)
+
+    # find top partnerships
+    partnership_df = overlaps_df.sort_values(by="Duration", ascending=False)
+    partnership_df["Co-Workers"] = (partnership_df["First Employee"] + " & " + partnership_df["Second Employee"])
+    partnership_df.drop(columns=["First Employee", "Second Employee"], inplace=True)
+    
+    # filter first 1000 most important connections
     edges_df = overlaps_df.sort_values(by="Duration", ascending=False).head(1000)
     
     first = edges_df.groupby("First Employee")["Duration"].sum()
@@ -101,10 +89,12 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
     min_duration = durations_df.min()
     max_duration = durations_df.max()
     for index, record in durations_df.items():
+        links = int(connections_df[index])
         normalized_weight = (record - min_duration)/max_duration
         elements.append({
             "data": {
                 "id": index,
+                "label": f"{index} - {links} link{'s' if links > 1 else ''}",
                 "weight": record,
                 "size": 10 + normalized_weight*40,
                 "color": sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], [normalized_weight])[0]
@@ -123,13 +113,12 @@ def coworker_network(selected_countries, selected_cities, selected_districts, se
             }
         })
 
-    first = overlaps_df["First Employee"].value_counts()
-    second = overlaps_df["Second Employee"].value_counts()
-    connections_df = first.add(second, fill_value=0).sort_values(ascending=False).head(top).reset_index().rename(columns={"index": "Employee", "count": "Connections"})
+    # filter top most connected employees and longest working partnerships
+    connections_df = connections_df.head(top)
+    partnership_df = partnership_df.head(top)
 
-    partnership_df = overlaps_df.sort_values(by="Duration", ascending=False).head(top)
-    partnership_df["Co-Workers"] = (partnership_df["First Employee"] + " & " + partnership_df["Second Employee"])
-    partnership_df.drop(columns=["First Employee", "Second Employee"], inplace=True)
+    # rename for clarity
+    connections_df = connections_df.reset_index().rename(columns={"index": "Employee", "First Employee": "Employee", "count": "Connections"})
     partnership_df.rename(columns={"Duration": "Years"}, inplace=True)
 
     return elements, connections_df, partnership_df

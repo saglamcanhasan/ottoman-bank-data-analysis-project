@@ -3,10 +3,36 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 from plotly.colors import sample_colorscale
 import pandas as pd
+from typing import Literal
 
-colors = ["#00587A", "#00487A", "#B08D57", "#7C0A02","#300000", "#200000"]
+colors = sample_colorscale([[0, "#00587A"], [0.2, "#00487A"], [0.4, "#B08D57"], [0.6, "#7C0A02"],[0.8, "#300000"], [1, "#200000"]], np.linspace(0, 1, 11))
 
-def theme(fig):
+def theme(fig, legend_location="top"):
+    if legend_location == "top":
+        legend = dict(
+            orientation="h",
+            yanchor="top",
+            y=1.1,
+            xanchor="left",
+            x=0
+        )
+    elif legend_location == "left":
+        legend = dict(
+            orientation="v",
+            yanchor="top",
+            y=0.875,
+            xanchor="left",
+            x=-0.25
+        )
+    elif legend_location == "right":
+        legend = dict(
+            orientation="v",
+            yanchor="top",
+            y=0.875,
+            xanchor="right",
+            x=1.25
+        )
+
     fig.update_layout(
         font=dict(
             family="Cormorant SC",
@@ -42,13 +68,7 @@ def theme(fig):
             linecolor="#DFC6A0",
             zerolinecolor="#DFC6A0"
         ),
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=1.1,
-            xanchor="left",
-            x=0
-        ),
+        legend=legend,
         paper_bgcolor="#EFEBD6",
         plot_bgcolor="#EFEBD6",
     )
@@ -87,6 +107,17 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
 
     return fig
 
+def pie(df, title):
+    names = df.columns.tolist()
+    values = df.iloc[0].values.tolist()
+
+    pie_colors =  sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], np.linspace(1, 0, len(names)))
+    fig = px.pie(df, names, values, title=title, color_discrete_sequence=pie_colors)
+
+    theme(fig, "left")
+
+    return fig
+
 def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, ylabel):
     if df.empty:
         return px.timeline()  # Returning an empty bar chart
@@ -107,11 +138,11 @@ def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel,
     
     fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
     
-    theme(fig)
+    theme(fig, "right")
 
     return fig
 
-def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title):
+def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
     is_there_second_y_label = len(figures_y_right) != 0
     
     supfig = make_subplots(specs=[[{"secondary_y": is_there_second_y_label}]])
@@ -132,7 +163,7 @@ def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, titl
     if is_there_second_y_label:
         supfig.update_yaxes(title_text=y_labels[1], secondary_y=True)
 
-    theme(supfig)
+    theme(supfig, legend_location)
 
     supfig.update_traces(showlegend=True)
 

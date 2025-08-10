@@ -408,11 +408,16 @@ a:hover {
     }
 
     .js-plotly-plot .legend text {
-        font-size: calc(20px - 0.0025 * (576px - 100vw)) !important;
+        font-size: calc(20px - 0.0325 * (576px - 100vw)) !important;
     }
 
     .js-plotly-plot .gtitle {
         font-size: calc(28px - 0.0325 * (576px - 100vw)) !important;
+    }
+    
+    .js-plotly-plot .legend {
+        opacity: 0;
+        display: none;
     }
 }
 

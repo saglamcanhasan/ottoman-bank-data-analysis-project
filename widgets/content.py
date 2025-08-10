@@ -96,7 +96,7 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
             )
 
         else:
-            graph = dcc.Graph(figure=figure, id=figure_id, className="graph")
+            graph = dcc.Graph(figure=figure, id=figure_id, className="graph", config={'responsive': True})
 
         graph_component = dcc.Loading(
             graph,

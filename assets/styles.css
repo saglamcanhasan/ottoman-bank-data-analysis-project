@@ -126,9 +126,9 @@ a:hover {
     vertical-align: middle;
 }
 
-@media (max-width: 403px) {
+@media (max-width: 420px) {
     .navbar-title {
-        font-size: calc(1.5rem - 0.1 * (403px - 100vw));
+        font-size: calc(1.5rem - 0.1 * (420px - 100vw));
     }
 }
 
@@ -150,7 +150,7 @@ a:hover {
     display: none;
 }
 
-@media (max-width: 837px) {
+@media (max-width: 855px) {
     .navbar-toggler {
         opacity: 100;
         display: block;
@@ -176,7 +176,7 @@ a:hover {
     opacity: 0.4;
 }
 
-@media (max-width: 837px) {
+@media (max-width: 855px) {
     .navbar-horizontal-separator {
         max-width: calc(100% - 16rem);
         min-width: 16rem;
@@ -202,14 +202,14 @@ a:hover {
     width: 100%;
 }
 
-@media (max-width: 837px) {
+@media (max-width: 855px) {
     .navbar-nav {
         flex-direction: column;
     }
 }
 
 /* navbar - items */
-@media (min-width: 837px) {
+@media (min-width: 855px) {
   #navbar-collapse {
     display: flex;
     visibility: visible;
@@ -277,10 +277,28 @@ a:hover {
     padding-top: 7.5rem;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 992px) {
+  .introduction-container {
+    padding-top: 5.25rem;
+  }
+}
+
+@media (max-width: 576px) {
   .introduction-container {
     padding-top: 3rem;
   }
+}
+
+.introduction-right-widget-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+@media (max-width: 1200px) {
+    .introduction-right-widget-container {
+        margin-top: 1rem;
+    }
 }
 
 .introduction-title {
@@ -292,7 +310,7 @@ a:hover {
     line-height: 3rem;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .introduction-title {
     text-align: center;
   }
@@ -320,14 +338,81 @@ a:hover {
     margin: 2.5rem 0px;
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     border: 2px solid var(--ottoman-gold);
-    min-height: 35rem;
+    aspect-ratio: 10 / 6;
+    min-height: auto;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 1200px) {
     .figure-container {
         padding: 0px 0.5rem;
         padding-top: 1rem;
-        min-height: 25rem;
+        width: 100%;
+        aspect-ratio: 10 / 5.5;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 992px) {
+    .figure-container {
+        padding: 0px 0.5rem;
+        padding-top: 1rem;
+        width: 100%;
+        aspect-ratio: 10 / 7;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .figure-container {
+        padding: 0px 0.5rem;
+        padding-top: 1rem;
+        width: 100%;
+        aspect-ratio: 10 / 8;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .figure-container {
+        padding: 0px 0.5rem;
+        padding-top: 1rem;
+        width: 100%;
+        aspect-ratio: 1;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .js-plotly-plot .xtick text {
+        font-size: calc(16px - 0.015 * (576px - 100vw)) !important;
+    }
+
+    .js-plotly-plot .ytick text {
+        font-size: calc(16px - 0.015 * (576px - 100vw)) !important;
+    }
+    
+    .js-plotly-plot .y2tick text {
+        font-size: calc(16px - 0.015 * (576px - 100vw)) !important;
+    }
+    
+    .js-plotly-plot .xtitle {
+        font-size: calc(16px - 0.0025 * (576px - 100vw)) !important;
+    }
+
+    .js-plotly-plot .ytitle {
+        font-size: calc(16px - 0.0025 * (576px - 100vw)) !important;
+    }
+    
+    .js-plotly-plot .y2title {
+        font-size: calc(16px - 0.0025 * (576px - 100vw)) !important;
+    }
+
+    .js-plotly-plot .legend text {
+        font-size: calc(20px - 0.0025 * (576px - 100vw)) !important;
+    }
+
+    .js-plotly-plot .gtitle {
+        font-size: calc(28px - 0.0325 * (576px - 100vw)) !important;
     }
 }
 
@@ -354,14 +439,25 @@ a:hover {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .figure-filter-container {
     padding: 1.25rem 1rem;
   }
 }
 
 .filter-container {
-    margin: 0rem 0rem;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    padding: 2.5rem 0px;
+    padding-top: 1.25rem;
+}
+
+@media (max-width: 1200px) {
+  .filter-container {
+    padding: 0px;
+  }
 }
 
 .filter-dropdown {
@@ -374,7 +470,13 @@ a:hover {
     font-family: var(--font-family-title);
     font-size: 1.25rem;
     font-weight: 600;
+    margin-top: 1.25rem;
+}
+
+@media (max-width: 1200px) {
+  .filter-title {
     margin-top: 1.5rem;
+  }
 }
 
 .content-container {
@@ -393,7 +495,7 @@ a:hover {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .content-container {
     padding: 0px 1rem;
   }
@@ -438,7 +540,7 @@ a:hover {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .content-horizontal-separator {
     margin: 3rem auto;
   }
@@ -447,7 +549,7 @@ a:hover {
 .content-vertical-separator {
     width: 1px;
     height: 90%;
-    margin: 2rem 3rem;
+    margin: 2rem auto;
     background-color: var(--ottoman-gold);
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     opacity: 0.4;
@@ -492,18 +594,6 @@ a:hover {
     background-color: var(--ottoman-gold);
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     opacity: 0.4;
-}
-
-.introduction-right-widget-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-@media (max-width: 1200px) {
-    .introduction-right-widget-container {
-        margin-top: 1rem;
-    }
 }
 
 .table-of-contents-container {

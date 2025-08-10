@@ -76,13 +76,38 @@ a:hover {
     margin: 0px;
     padding: 0px;
     font-family: var(--font-family-other);
-    background-color: var(--ottoman-dark-red);
+    background-color: var(--ottoman-dark-red) !important;
     box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.navbar-container {
+    margin: 0px;
+    padding: 0rem 0.75rem;
+    flex-direction: column;
+    width: 100%;
+}
+
+.navbar-row {
+    padding: 0px;
+    width: 100%;
+}
+
+.navbar-column {
+    padding: 0px;
+    width: 100%;
 }
 
 /* navbar - top layer */
 .navbar-top-layer {
-    padding: 0.75rem 0.75rem;
+    flex-wrap: nowrap;
+    padding: 0.75rem 0rem;
+    width: 100%;
+}
+
+.navbar-logo-container {
+    flex: auto;  
+    flex-wrap: nowrap;
+    padding: 0px;
 }
 
 .navbar-logo {
@@ -94,10 +119,17 @@ a:hover {
 }
 
 .navbar-title {
+    padding: 0px;
     font-family: var(--font-family-title);
     font-size: 1.5rem;
     font-weight: 600;
     vertical-align: middle;
+}
+
+@media (max-width: 403px) {
+    .navbar-title {
+        font-size: calc(1.5rem - 0.1 * (403px - 100vw));
+    }
 }
 
 .navbar-top-layer a, .navbar-top-layer a:hover {
@@ -105,11 +137,33 @@ a:hover {
     color: var(--ottoman-ivory);
 }
 
+.navbar-toggler-container {
+    display: flex;
+    width: max-content;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0px;
+}
+
+.navbar-toggler {
+    opacity: 0;
+    display: none;
+}
+
+@media (max-width: 837px) {
+    .navbar-toggler {
+        opacity: 100;
+        display: block;
+    }
+}
+
+
 /* navbar - separators */
 .navbar-horizontal-separator {
     height: 1px;
-    margin-left: 16rem;
-    margin-right: 16rem;
+    margin: 0 auto;
+    max-width: calc(100% - 32rem);
+    min-width: 32rem;
     background-color: var(--ottoman-gold);
     opacity: 0.4;
 }
@@ -122,19 +176,46 @@ a:hover {
     opacity: 0.4;
 }
 
+@media (max-width: 837px) {
+    .navbar-horizontal-separator {
+        max-width: calc(100% - 16rem);
+        min-width: 16rem;
+    }
+    .navbar-vertical-separator {
+        display: none;
+    }
+}
+
 /* navbar - bottom layer */
 .navbar-bottom-layer {
     padding: 0px;
     margin: auto;
-    background-color: var(--ottoman-black) !important;
+    background-color: var(--ottoman-dark-red) !important;
+    width: 100%;
 }
 
 .navbar-nav {
     margin: auto;
+    justify-content: center;
     align-items: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+@media (max-width: 837px) {
+    .navbar-nav {
+        flex-direction: column;
+    }
 }
 
 /* navbar - items */
+@media (min-width: 837px) {
+  #navbar-collapse {
+    display: flex;
+    visibility: visible;
+  }
+}
+
 .navbar-bottom-layer .nav-link,
 .navbar-bottom-layer .dropdown-toggle {
     color: var(--ottoman-ivory);
@@ -161,6 +242,10 @@ a:hover {
 
 /* navbar - dropdown menu and items */
 .navbar-dropdown-menu .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0; 
     display: block;
     opacity: 0;
     visibility: hidden;
@@ -192,6 +277,12 @@ a:hover {
     padding-top: 7.5rem;
 }
 
+@media (max-width: 480px) {
+  .introduction-container {
+    padding-top: 3rem;
+  }
+}
+
 .introduction-title {
     color: var(--ottoman-gold);
     font-family: var(--font-family-title);
@@ -201,9 +292,26 @@ a:hover {
     line-height: 3rem;
 }
 
+@media (max-width: 480px) {
+  .introduction-title {
+    text-align: center;
+  }
+}
+
 .section-container {
     margin: 0px;
     padding: 0px;
+}
+
+.figure-row {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+@media (max-width: 1200px) {
+    .figure-row {
+        flex-direction: row;
+    }
 }
 
 .figure-container {
@@ -215,6 +323,14 @@ a:hover {
     min-height: 35rem;
 }
 
+@media (max-width: 480px) {
+    .figure-container {
+        padding: 0px 0.5rem;
+        padding-top: 1rem;
+        min-height: 25rem;
+    }
+}
+
 .figure-container > div,
 .figure-container > div > div:not(#loader) {
   height: 100%;
@@ -224,6 +340,24 @@ a:hover {
     background-color: var(--ottoman-sandstone);
     margin-top: 2.5rem;
     padding: 1.25rem 5rem;
+}
+
+@media (max-width: 1200px) {
+  .figure-filter-container {
+    padding: 1.25rem 5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .figure-filter-container {
+    padding: 1.25rem 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .figure-filter-container {
+    padding: 1.25rem 1rem;
+  }
 }
 
 .filter-container {
@@ -247,6 +381,24 @@ a:hover {
     padding: 0px 15rem;
 }
 
+@media (max-width: 1200px) {
+  .content-container {
+    padding: 0px 7.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    padding: 0px 3.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-container {
+    padding: 0px 1rem;
+  }
+}
+
 .content-title {
     scroll-margin-top: 10rem;
     color: var(--ottoman-gold);
@@ -267,10 +419,29 @@ a:hover {
 
 .content-horizontal-separator {
     height: 1px;
-    margin: 3rem 12rem;
+    width: 75%;
+    margin: 3rem auto;
     background-color: var(--ottoman-gold);
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     opacity: 0.4;
+}
+
+@media (max-width: 1200px) {
+  .content-horizontal-separator {
+    margin: 3rem auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-horizontal-separator {
+    margin: 3rem auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-horizontal-separator {
+    margin: 3rem auto;
+  }
 }
 
 .content-vertical-separator {
@@ -280,6 +451,19 @@ a:hover {
     background-color: var(--ottoman-gold);
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     opacity: 0.4;
+}
+
+@media (max-width: 1200px) {
+    .content-vertical-separator {
+        width: auto;
+        height: 1px;
+        margin: 1rem 3rem;
+        margin-top: 3rem;
+        padding: 0rem;
+        background-color: var(--ottoman-gold);
+        box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
+        opacity: 0.4;
+    }
 }
 
 .table-of-contents-title {
@@ -310,10 +494,21 @@ a:hover {
     opacity: 0.4;
 }
 
+.introduction-right-widget-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+@media (max-width: 1200px) {
+    .introduction-right-widget-container {
+        margin-top: 1rem;
+    }
+}
+
 .table-of-contents-container {
     background-color: var(--ottoman-sandstone);
     padding: 1rem;
-    margin: 0rem 7.5rem;
     box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.25);
     border: 2px solid var(--ottoman-gold);
     max-width: 30rem;

@@ -3,30 +3,33 @@ import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
 from utils.server.filter_parameters import countries, grouped_functions, religions, ids, start, end
 
-cyto.load_extra_layouts()
-
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([
         dbc.Row([
-            dbc.Col(content(title, description)),
+            dbc.Col(content(title, description), lg=12, xl=6),
             
-            dbc.Col(right_widget)]
+            dbc.Col(right_widget, lg=12, xl=6, className="introduction-right-widget-container")],
+            className="container"
         )],
         className="introduction-container"
     )
 
 def content(title: str, description: str):
-    return [
-        html.Header(
-            title,
-            className="introduction-title"
-        ),
+    return dbc.Row([
+        dbc.Col([
+            html.Header(
+                title,
+                className="introduction-title"
+            ),
 
-        dcc.Markdown(
-            description,
-            className="content-body"
-        )
-    ]
+            dcc.Markdown(
+                description,
+                className="content-body"
+            )],
+            className="container"
+        )],
+        className="container"
+    )
 
 def table_of_contents(sections: list):
     return dbc.Container([
@@ -104,12 +107,12 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
 
         # generate a row
         cols = list()
-        cols.append(dbc.Col(graph_component, width=8, className="figure-container"))
         if filter is not None:
-            cols.append(dbc.Col(vertical_separator(), width=1))
-            cols.append(dbc.Col(filter, width=3))
+            cols.append(dbc.Col(filter, lg=12, xl=3))
+            cols.append(dbc.Col(vertical_separator(), lg=12, xl=1))
+        cols.append(dbc.Col(graph_component, lg=12, xl=8, className="figure-container"))
 
-        row = dbc.Row(cols, justify="center")
+        row = dbc.Row(cols, justify="center", className="figure-row")
         figure_rows.append(row)
 
     containers = list()
@@ -128,7 +131,8 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
                         description,
                         className="content-body"
                     )]
-                )
+                ),
+                className="container"
             )],
             className="content-container",
             fluid=True

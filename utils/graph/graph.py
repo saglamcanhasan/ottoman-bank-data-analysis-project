@@ -127,7 +127,7 @@ def pie(df, title):
 
     return fig
 
-def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
+def gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
     if df.empty:
         return px.timeline()  # Returning an empty bar chart
     
@@ -179,7 +179,7 @@ def sankey(elements: dict, title: str):
 
     return fig
 
-def plot_table(df, columns_to_display=None, title="Table Title"):
+def table(df, columns_to_display=None, title="Table Title"):
     if df.empty:
         return go.Figure() 
 
@@ -207,7 +207,7 @@ def plot_table(df, columns_to_display=None, title="Table Title"):
     return fig
 
 
-def plot_box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
+def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
     if df.empty:
         return px.box()
     

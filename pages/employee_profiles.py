@@ -2,7 +2,7 @@ import dash
 from dash import html
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 from utils.callbacks.figure_callbacks import create_figure_callback
-from utils.graph.graph import plot_gantt, plot_table
+from utils.graph.graph import gantt, table
 from utils.server.employee_profiles_analysis import get_multiple_employees_gantt_data, get_employee_profile_data
 dash.register_page(__name__, path="/employee-profiles")
 
@@ -32,5 +32,5 @@ def layout():
         )
     ]
     
-create_figure_callback(get_employee_profile_data, lambda df: plot_table(df, None, "Employee Profile Card"), "profile-card", False, False, False, True, False, filter_id="profile-card")
-create_figure_callback(get_multiple_employees_gantt_data, lambda df: plot_gantt(df, "Start",  "Finish", "Task" ,"Task",  "Total Years", "Start Year", "End Year","Countries Employee/s Worked in", "Employee Career Timeline by Country/Agency", "Country"), "career-timeline", False, False, False, True, False, filter_id="profile-card")
+create_figure_callback(get_employee_profile_data, lambda df: table(df, None, "Employee Profile Card"), "profile-card", False, False, False, True, False, filter_id="profile-card")
+create_figure_callback(get_multiple_employees_gantt_data, lambda df: gantt(df, "Start",  "Finish", "Task" ,"Task",  "Total Years", "Start Year", "End Year","Countries Employee/s Worked in", "Employee Career Timeline by Country/Agency", "Country"), "career-timeline", False, False, False, True, False, filter_id="profile-card")

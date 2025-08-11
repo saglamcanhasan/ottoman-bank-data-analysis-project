@@ -678,7 +678,7 @@ def impute_career_start_end_year(employee_df):
             
     if len(new_records) != 0:
         new_records_df = pd.DataFrame(new_records)
-        employee_df = pd.concat([employee_df, new_records_df], ignore_index=True)
+        employee_df = pd.concat([new_records_df, employee_df], ignore_index=True)
 
     return employee_df
 
@@ -712,6 +712,12 @@ def generate_agency(employee_df, agency_df):
 
     return employee_df, agency_df
 
+def sort(employee_df, agency_df):
+    employee_df.sort_values(by=["ID", "Record Year"], inplace=True)
+    agency_df.sort_values(by=["Opening Year", "Agency"], inplace=True)
+
+    return employee_df, agency_df
+
 def preprocess(employee_df, agency_df):
     employee_df, agency_df = drop_columns(employee_df, agency_df)
     employee_df, agency_df = rename_columns(employee_df, agency_df)
@@ -724,6 +730,7 @@ def preprocess(employee_df, agency_df):
     employee_df = extract_period_start_end_year(employee_df)
     employee_df, agency_df = fill_na(employee_df, agency_df)
     employee_df, agency_df = generate_agency(employee_df, agency_df)
+    employee_df, agency_df = sort(employee_df, agency_df)
 
     return employee_df, agency_df
 

@@ -1,4 +1,6 @@
-def filter(df, is_employee: bool, selected_countries=None, selected_cities=None, selected_districts=None, selected_grouped_functions=None, selected_religions=None, selected_ids=None, time_period_start_year=None, time_period_end_year=None):
+from pandas import DataFrame
+
+def filter(df: DataFrame, is_employee: bool, selected_countries=None, selected_cities=None, selected_districts=None, selected_grouped_functions=None, selected_religions=None, selected_ids=None, time_period_start_year=None, time_period_end_year=None) -> DataFrame:
     # filter dataset
     if is_employee:
         if selected_ids is not None and len(selected_ids) != 0:

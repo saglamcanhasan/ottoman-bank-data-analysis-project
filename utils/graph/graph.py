@@ -1,9 +1,10 @@
 import numpy as np
-import plotly.express as px
-from plotly.subplots import make_subplots
-from plotly.colors import sample_colorscale
 import pandas as pd
 from typing import Literal
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from plotly.colors import sample_colorscale
 
 colors = sample_colorscale([[0, "#00587A"], [0.2, "#00487A"], [0.4, "#B08D57"], [0.6, "#7C0A02"],[0.8, "#300000"], [1, "#200000"]], np.linspace(0, 1, 11))
 
@@ -139,6 +140,36 @@ def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel,
     fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
     
     theme(fig, "right")
+
+    return fig
+
+def sankey(elements: dict, title: str):
+    fig = go.Figure(
+        data=[go.Sankey(
+            arrangement="snap",
+            node=dict(
+                pad=20,
+                thickness=20,
+                line=dict(color="#7C0A02", width=0.25),
+                label=elements["nodes"],
+                color=elements["colors"],
+                hovertemplate=elements["node_hovertemplate"],
+                customdata=elements["node_customdata"],
+            ),
+            link=dict(
+                source=elements["sources"],
+                target=elements["targets"],
+                value=elements["values"],
+                color="rgba(124, 10, 2, 0.2)",
+                hovertemplate=elements["line_hovertemplate"],
+                customdata=elements["link_customdata"],
+            )
+        )]
+    )
+
+    theme(fig)
+
+    fig.update_layout(title_text=title, font_size=10)
 
     return fig
 

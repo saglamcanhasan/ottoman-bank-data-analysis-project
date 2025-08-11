@@ -173,6 +173,33 @@ def sankey(elements: dict, title: str):
 
     return fig
 
+def plot_table(df, columns_to_display=None, title="Table Title"):
+    if df.empty:
+        return go.Figure() 
+
+    if columns_to_display is None:
+        df_filtered = df
+    else:
+        df_filtered = df[columns_to_display]
+
+    # Create the table trace
+    table_trace = go.Table(
+        header=dict(values=list(df_filtered.columns),
+                    fill_color="#7C0A02",  # Header background color
+                    align="center",
+                    font=dict(color="white")),
+        cells=dict(values=[df_filtered[col] for col in df_filtered.columns],
+                   fill_color="#EFEBD6",  # Cells background color
+                   align="center")
+    )
+
+    fig = go.Figure(data=[table_trace])
+
+    fig.update_layout(title=title)
+    theme(fig) 
+
+    return fig
+
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
     is_there_second_y_label = len(figures_y_right) != 0
     

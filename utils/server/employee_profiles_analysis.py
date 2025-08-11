@@ -22,13 +22,13 @@ def get_multiple_employees_gantt_data(selected_ids=None):
         start_year = int(row['Period Start Year']) if pd.notna(row['Period Start Year']) else 0
         finish_year = int(row['Period End Year']) if pd.notna(row['Period End Year']) else 0
         
-        if start_year is None and finish_year is None:
+        if start_year is 0 and finish_year is 0:
             continue
 
-        if start_year is None:
+        if start_year is 0:
             start_year = finish_year - 1
 
-        if finish_year is None:
+        if finish_year is 0 or finish_year == start_year:
             finish_year = start_year + 1
             
         gantt_data.append({
@@ -39,3 +39,42 @@ def get_multiple_employees_gantt_data(selected_ids=None):
         })
 
     return pd.DataFrame(gantt_data)
+
+
+
+
+def get_employee_profile_data(selected_ids=None):
+    
+    df = generate_employee_profile_df(selected_ids)
+    
+    if df.empty:
+        return pd.DataFrame()
+    
+    profiles = []
+
+    for employee_id in df['ID'].unique():
+        employee_data = df[df['ID'] == employee_id]
+        
+        countries_worked_in = set()
+        functions_worked_in = set() 
+        unique_agencies = set() 
+
+        for _, row in employee_data.iterrows():
+            countries_worked_in.add(row['Country'])
+            functions_worked_in.add(row['Function'])
+            unique_agencies.add(row['Agency'])
+        
+        # Prepare the profile data
+        profile = {
+            'Employee ID': employee_id,
+            'Total Career Length': row['Career End Year'] - row['Career Start Year'] + 1, 
+            'Countries Worked In': ', '.join(countries_worked_in), 
+            'Functions Worked In': ', '.join(functions_worked_in),  
+            'Unique Agencies': ' / '.join(unique_agencies)  
+        }
+
+        profiles.append(profile)
+    
+    profile_df = pd.DataFrame(profiles)
+    
+    return profile_df

@@ -87,7 +87,10 @@ def plot(df, x_label, y_label, title, color_index=0):
 
     return fig
 
-def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
+def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="", y_title=""):
+    if df.empty:
+        return px.bar()
+    
     if orientation == "h":
         x_label, y_label = y_label, x_label
 
@@ -100,7 +103,12 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v"):
         fig.update_layout(
             yaxis=dict(autorange="reversed")
         )
-
+        
+    fig.update_layout(
+        xaxis_title= x_title if x_title != "" else x_label,
+        yaxis_title= y_title if y_title != "" else y_label,
+    )
+    
     fig.update_traces(
         marker_color=marker_colors,
         name=y_label if orientation == "v" else x_label
@@ -119,23 +127,21 @@ def pie(df, title):
 
     return fig
 
-def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, ylabel):
+def plot_gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
     if df.empty:
         return px.timeline()  # Returning an empty bar chart
     
-    df['Start'] = pd.to_datetime(df['Start'], format='%Y')  # Convert to datetime (if not already)
-    df['Finish'] = pd.to_datetime(df['Finish'], format='%Y')  # Convert to datetime (if not already)
-
     fig = px.timeline(df, 
                       x_start=x_start_column,
                       x_end=x_end_column, 
                       y=y_column,    
                       color=color_column,
+                      color_discrete_sequence=colors,
                       labels={y_column: ylabel, 
-                              x_start_column: xlabel, 
-                              x_end_column: "End Year", 
-                              color_column: "Country/Agency"},
-                      title="Employee Career Timeline by Country/Agency")
+                              x_start_column: xstartlabel, 
+                              x_end_column: xendlabel, 
+                              color_column: color_title},
+                      title=title)
     
     fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
     
@@ -197,6 +203,31 @@ def plot_table(df, columns_to_display=None, title="Table Title"):
 
     fig.update_layout(title=title)
     theme(fig) 
+
+    return fig
+
+
+def plot_box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
+    if df.empty:
+        return px.box()
+    
+    fig = px.box(df, 
+                 x= x_col,
+                 y= y_col, 
+                 title= title,
+                 color= color_col,
+                 boxmode='group',
+                 color_discrete_sequence=colors  
+                )
+
+
+    fig.update_layout(
+        xaxis_title=x_title,
+        yaxis_title=y_title,
+        showlegend=show_legend
+    )
+    
+    theme(fig)
 
     return fig
 

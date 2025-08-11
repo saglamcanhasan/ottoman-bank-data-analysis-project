@@ -33,4 +33,4 @@ def layout():
     ]
     
 create_figure_callback(get_employee_profile_data, lambda df: plot_table(df, None, "Employee Profile Card"), "profile-card", False, False, False, True, False, filter_id="profile-card")
-create_figure_callback(get_multiple_employees_gantt_data, lambda df: plot_gantt(df, "Start",  "Finish", "Task" ,"Task",  "How many years", "Countries Employee Worked in"), "career-timeline", False, False, False, True, False, filter_id="profile-card")
+create_figure_callback(get_multiple_employees_gantt_data, lambda df: plot_gantt(df, "Start",  "Finish", "Task" ,"Task",  "Total Years", "Start Year", "End Year","Countries Employee/s Worked in", "Employee Career Timeline by Country/Agency", "Country"), "career-timeline", False, False, False, True, False, filter_id="profile-card")

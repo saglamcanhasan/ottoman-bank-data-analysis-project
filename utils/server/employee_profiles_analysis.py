@@ -22,13 +22,13 @@ def get_multiple_employees_gantt_data(selected_ids=None):
         start_year = int(row['Period Start Year']) if pd.notna(row['Period Start Year']) else 0
         finish_year = int(row['Period End Year']) if pd.notna(row['Period End Year']) else 0
         
-        if start_year is 0 and finish_year is 0:
+        if start_year == 0 and finish_year == 0:
             continue
 
-        if start_year is 0:
+        if start_year == 0:
             start_year = finish_year - 1
 
-        if finish_year is 0 or finish_year == start_year:
+        if finish_year == 0 or finish_year == start_year:
             finish_year = start_year + 1
             
         gantt_data.append({
@@ -38,7 +38,11 @@ def get_multiple_employees_gantt_data(selected_ids=None):
             'Employee ID': row['ID']
         })
 
-    return pd.DataFrame(gantt_data)
+    df_g = pd.DataFrame(gantt_data)
+    df_g['Start'] = pd.to_datetime(df_g['Start'], format='%Y')  # Convert to datetime 
+    df_g['Finish'] = pd.to_datetime(df_g['Finish'], format='%Y') 
+
+    return df_g
 
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from os.path import join
+from rapidfuzz import process, fuzz
 
 def drop_columns(employee_df, agency_df):
     agency_df = agency_df.loc[:, ["Opening date", "Closing date", "City"]]
@@ -58,7 +59,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Hintab": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
         "Gaji Antip": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
         "Gaji. Ant.": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
-        "Le Banque Gaziantep": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
+        "Gaziantep": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
         "Rintab.": {"district": np.nan, "city": "Gaziantep", "country": "Turkey"},
         "Balıkesir": {"district": np.nan, "city": "Balıkesir", "country": "Turkey"},
         "Balkesir": {"district": np.nan, "city": "Balıkesir", "country": "Turkey"},
@@ -192,7 +193,6 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Güzelbahçe": {"district": "Güzelbahçe", "city": "İzmir", "country": "Turkey"},
         "Yesil Cami": {"district": "Yeşil Cami", "city": "Bursa", "country": "Turkey"},
         "Ayasi": {"district": "Ayaş", "city": "Ankara", "country": "Turkey"},
-        "Bursa-Khaki": {"district": np.nan, "city": "Bursa", "country": "Turkey"},
         "Cersin": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Cerum": {"district": np.nan, "city": "Çorum", "country": "Turkey"},
         "Chéroum": {"district": np.nan, "city": "Çorum", "country": "Turkey"},
@@ -239,8 +239,6 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Yeni̇-Cami̇": {"district": "Yeni Cami", "city": "İstanbul", "country": "Turkey"},
         "Yeni̇Cami̇": {"district": "Yeni Cami", "city": "İstanbul", "country": "Turkey"},
         "Merlin": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
-        "Merlin": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
-        "Merlin": {"district": np.nan, "city": "Mersin", "country": "Turkey"},
         "Ceyran": {"district": "Ceyhan", "city": "Adana", "country": "Turkey"},
         "Baliseur": {"district": np.nan, "city": "Balıkesir", "country": "Turkey"},
         "Küthyra": {"district": np.nan, "city": "Kütahya", "country": "Turkey"},
@@ -266,7 +264,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Bayrut": {"district": np.nan, "city": "Beirut", "country": "Lebanon"},
         "Peyrouth": {"district": np.nan, "city": "Beirut", "country": "Lebanon"},
         "Reynouth": {"district": np.nan, "city": "Beirut", "country": "Lebanon"},
-        "Tripoli De Syriee": {"district": np.nan, "city": "Tripoli", "country": "Lebanon"},
+        "Tripoli": {"district": np.nan, "city": "Tripoli", "country": "Lebanon"},
         "Zahle": {"district": np.nan, "city": "Zahle", "country": "Lebanon"},
         "Aleppo": {"district": np.nan, "city": "Aleppo", "country": "Syria"},
         "Damas": {"district": np.nan, "city": "Damascus", "country": "Syria"},
@@ -331,7 +329,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Jaffa": {"district": np.nan, "city": "Jaffa", "country": "Israel"},
         "Loffa": {"district": np.nan, "city": "Jaffa", "country": "Israel"},
         "Jerusalem": {"district": np.nan, "city": "Jerusalem", "country": "Israel"},
-        "Nablous Gays Bureau": {"district": np.nan, "city": "Nablus", "country": "Palestine"},
+        "Nablous": {"district": np.nan, "city": "Nablus", "country": "Palestine"},
         "Naplouse": {"district": np.nan, "city": "Nablus", "country": "Palestine"},
         "Tel Aviv": {"district": np.nan, "city": "Tel Aviv", "country": "Israel"},
         "Amman": {"district": np.nan, "city": "Amman", "country": "Jordan"},
@@ -375,9 +373,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Naples": {"district": np.nan, "city": "Naples", "country": "Italy"},
         "Nîmes": {"district": np.nan, "city": "Nîmes", "country": "France"},
         "Odessa": {"district": np.nan, "city": "Odesa", "country": "Ukraine"},
-        "Paris": {"district": np.nan, "city": "Paris", "country": "France"},
-        "Le Paris, Bureau Du Lien": {"district": "Bureau Du Lien", "city": "Paris", "country": "France"},
-        "Scutari D'Albanie": {"district": np.nan, "city": "Shkodër", "country": "Albania"},
+        "Scutari": {"district": np.nan, "city": "Shkodër", "country": "Albania"},
         "Sofia": {"district": np.nan, "city": "Sofia", "country": "Bulgaria"},
         "Tiflis": {"district": np.nan, "city": "Tbilisi", "country": "Georgia"},
         "Tunis": {"district": np.nan, "city": "Tunis", "country": "Tunisia"},
@@ -393,7 +389,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Kenya": {"district": np.nan, "city": np.nan, "country": "Kenya"},
         "Nairobi": {"district": np.nan, "city": "Nairobi", "country": "Kenya"},
         "Tanger": {"district": np.nan, "city": "Tangier", "country": "Morocco"},
-        "Tripole De Barbari": {"district": np.nan, "city": "Tripoli", "country": "Libya"},
+        "Tripole": {"district": np.nan, "city": "Tripoli", "country": "Libya"},
         "Maghreb": {"district": np.nan, "city": np.nan, "country": "Maghreb Region"},
         "Bahrein": {"district": np.nan, "city": np.nan, "country": "Bahrain"},
         "Inde": {"district": np.nan, "city": np.nan, "country": "India"},
@@ -440,7 +436,6 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Bitlis": {"district": np.nan, "city": "Bitlis", "country": "Turkey"},
         "Bolu": {"district": np.nan, "city": "Bolu", "country": "Turkey"},
         "Bolvadin": {"district": "Bolvadin", "city": "Afyonkarahisar", "country": "Turkey"},
-        "Bursa": {"district": np.nan, "city": "Bursa", "country": "Turkey"},
         "Ceyhan": {"district": "Ceyhan", "city": "Adana", "country": "Turkey"},
         "Denizli": {"district": np.nan, "city": "Denizli", "country": "Turkey"},
         "Diyarbekir": {"district": np.nan, "city": "Diyarbakır", "country": "Turkey"},
@@ -536,11 +531,26 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "İşkodra": {"district": np.nan, "city": "Shkodra", "country": "Albania"},
     }
     
-    locations_df = employee_df["Agency"].str.strip().str.title().map(agency_to_location)
+    # manual match
+    employee_df.loc[:, "Agency"] = employee_df["Agency"].str.strip().str.title()
+    locations_df = employee_df["Agency"].map(agency_to_location)
+
+    # fuzzy match
+    match_to_location = dict()
+    mask = locations_df.isna() & employee_df["Agency"].notna()
+    for agency in employee_df[mask]["Agency"].unique():
+        match = process.extractOne(agency, agency_to_location.keys(), scorer=lambda s1, s2, **kwargs: max(fuzz.token_sort_ratio(s1, s2), fuzz.partial_ratio(s1, s2)), score_cutoff=95)
+        if match is not None:
+            match_to_location[agency] = agency_to_location[match[0]]
+    locations_df.loc[mask] = employee_df.loc[mask, "Agency"].map(match_to_location)
+
+    # extract locations
     employee_df["District"] = locations_df.str.get("district")
     employee_df["City"] = locations_df.str.get("city")
     employee_df["Country"] = locations_df.str.get("country")
-    for column in ["District", "City", "Country"]: # filter rare agencies - they may not exist
+    
+    # filter rare agencies - they may not exist
+    for column in ["District", "City", "Country"]:
         location_counts = employee_df[column].value_counts(dropna=True)
         rare_locations = location_counts[location_counts < 5].index
         employee_df[column] = employee_df[column].apply(lambda location: np.nan if location in rare_locations else location)
@@ -569,7 +579,20 @@ def translate_functions(employee_df):
         "Titres": "Securities"
     }
 
-    employee_df.loc[:, "Function"] = employee_df["Function"].str.strip().str.title().map(fr_to_eng)
+    # manual match
+    employee_df.loc[:, "Function"] = employee_df["Function"].str.strip().str.title()
+    functions_df = employee_df["Function"].map(fr_to_eng)
+
+    # fuzzy match
+    match_to_function = dict()
+    mask = functions_df.isna() & employee_df["Function"].notna()
+    for agency in employee_df[mask]["Function"].unique():
+        match = process.extractOne(agency, fr_to_eng.keys(), scorer=lambda s1, s2, **kwargs: max(fuzz.token_sort_ratio(s1, s2), fuzz.partial_ratio(s1, s2)), score_cutoff=90)
+        if match is not None:
+            match_to_function[agency] = fr_to_eng[match[0]]
+    functions_df.loc[mask] = employee_df.loc[mask, "Function"].map(match_to_function)
+
+    employee_df["Function"] = functions_df
     return employee_df
 
 def translate_religions(employee_df):
@@ -586,7 +609,20 @@ def translate_religions(employee_df):
         "Protestant": "Protestant"
     }
 
-    employee_df.loc[:, "Religion"] = employee_df["Religion"].str.strip().str.title().map(fr_to_eng)
+    # manual match
+    employee_df.loc[:, "Religion"] = employee_df["Religion"].str.strip().str.title()
+    religions_df = employee_df["Religion"].map(fr_to_eng)
+
+    # fuzzy match
+    match_to_religion = dict()
+    mask = religions_df.isna() & employee_df["Religion"].notna()
+    for agency in employee_df[mask]["Religion"].unique():
+        match = process.extractOne(agency, fr_to_eng.keys(), scorer=lambda s1, s2, **kwargs: max(fuzz.token_sort_ratio(s1, s2), fuzz.partial_ratio(s1, s2)), score_cutoff=90)
+        if match is not None:
+            match_to_religion[agency] = fr_to_eng[match[0]]
+    religions_df.loc[mask] = employee_df.loc[mask, "Religion"].map(match_to_religion)
+
+    employee_df["Religion"] = religions_df
     return employee_df
 
 def impute_career_start_end_year(employee_df):

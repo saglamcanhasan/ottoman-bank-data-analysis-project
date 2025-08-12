@@ -270,6 +270,51 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     theme(fig)  
     return fig
 
+
+def map(df, size_col='Employee Count', text_col='City', title=""):
+
+    if df.empty or 'Latitude' not in df or 'Longitude' not in df or size_col not in df:
+        fig = go.Figure()
+        fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})
+        theme(fig)
+        return fig
+    
+    # Create traces for each city
+    traces = []
+    for _, row in df.iterrows():
+        text_c = row[text_col]
+        lat = row['Latitude']
+        lon = row['Longitude']
+        size_c = row[size_col]
+        color_c = row[size_col]
+        
+        traces.append(go.Scattermap(
+            mode='markers',
+            lon=[lon],
+            lat=[lat],
+            marker=dict(
+                size=size_c, 
+                color=color_c,
+                colorscale=colors, 
+                showscale=True, 
+                opacity=0.7
+            ),
+            text=text_c,  # Display city name on hover
+            hoverinfo='text+lat+lon' # Show text on hover
+        ))
+
+    fig = go.Figure(data=traces)
+
+    fig.update_layout(
+        map = {'style': "open-street-map", 'center': {'lon': 37, 'lat': 37}, 'zoom': 4},
+        title=title,
+        showlegend=False,
+        margin={'l': 0, 'r': 0, 'b': 0, 't': 0}
+    )
+    
+    theme(fig)
+    return fig
+
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
     is_there_second_y_label = len(figures_y_right) != 0
     

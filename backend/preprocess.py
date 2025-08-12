@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from os.path import join
 from rapidfuzz import process, fuzz
+from geopy.geocoders import Nominatim
+import time
 
 def drop_columns(employee_df, agency_df):
     agency_df = agency_df.loc[:, ["Opening date", "Closing date", "City"]]
@@ -734,6 +736,88 @@ def preprocess(employee_df, agency_df):
 
     return employee_df, agency_df
 
+
+
+
+def preprocess_geo(employee_df, agency_df):
+    geolocator = Nominatim(user_agent="city_geocoder")
+    emp_df = employee_df.copy()
+    agency_geo_df = agency_df.copy()
+    
+    def get_lat_lon(city):
+        try:
+            location = geolocator.geocode(city, timeout=15)
+            if location:
+                return location.latitude, location.longitude
+            else:
+                return None, None
+        except Exception as e:
+            print(f"Error geocoding {city}: {e}")
+            return None, None
+
+    def batch_geocode(cities, batch_size=10):
+        batch_latitudes = []
+        batch_longitudes = []
+        
+        for i in range(0, len(cities), batch_size):
+            batch = cities[i:i+batch_size]
+
+            for city in batch:
+                lat, lon = get_lat_lon(city)
+                batch_latitudes.append(lat)
+                batch_longitudes.append(lon)
+            
+            time.sleep(2) 
+        return batch_latitudes, batch_longitudes
+    
+    def update_agency_geo_df():
+        agency_geo_df['Latitude'] = np.nan
+        agency_geo_df['Longitude'] = np.nan
+        
+        unique_cities_employee = emp_df['City'].unique()
+        unique_cities_agency = agency_geo_df['City'].unique()
+        new_cities = set(unique_cities_employee) - set(unique_cities_agency)
+
+        new_rows = []
+
+        for city in new_cities:
+            city_data = emp_df[emp_df['City'] == city]
+            opening_year = city_data['Period Start Year'].min() if not city_data['Period Start Year'].isna().all() else np.nan
+            closing_year = city_data['Period End Year'].max() if not city_data['Period End Year'].isna().all() else np.nan
+            district = city_data['District'].iloc[0] if 'District' in city_data else np.nan
+            country = city_data['Country'].iloc[0] if 'Country' in city_data else np.nan
+            agency = city_data['Agency'].iloc[0] if 'Agency' in city_data else np.nan
+            new_row = {
+                'Opening Year': opening_year,
+                'Closing Year': closing_year,
+                'City': city,
+                'District': district,
+                'Country': country,
+                'Agency': agency,
+                'Latitude': np.nan,
+                'Longitude': np.nan 
+            }
+            new_rows.append(new_row)
+
+        new_rows_df = pd.DataFrame(new_rows)
+        updated_agency_df = pd.concat([agency_geo_df, new_rows_df], ignore_index=True)
+
+        return updated_agency_df
+    
+
+    agency_geo_df = update_agency_geo_df()
+
+    cities_to_geocode = agency_geo_df[agency_geo_df['Latitude'].isna()]['City'].tolist()
+    batch_latitudes, batch_longitudes = batch_geocode(cities_to_geocode)
+
+    agency_geo_df.loc[agency_geo_df['City'].isin(cities_to_geocode), 'Latitude'] = batch_latitudes
+    agency_geo_df.loc[agency_geo_df['City'].isin(cities_to_geocode), 'Longitude'] = batch_longitudes
+    agency_geo_df = agency_geo_df.drop(columns=['Unnamed: 0'], errors='ignore')
+
+    return agency_geo_df
+
+    
+
 # load datasets
 employee_df = pd.read_excel(join("datasets", "employees_raw.xlsx"))
 agency_df = pd.read_excel(join("datasets", "agencies_raw.xlsx"))
@@ -744,3 +828,7 @@ employee_df, agency_df = preprocess(employee_df, agency_df)
 # save datasets
 employee_df.to_excel(join("datasets", "employees_preprocessed.xlsx"))
 agency_df.to_excel(join("datasets", "agencies_preprocessed.xlsx"))
+
+
+agency_geo_df = preprocess_geo(employee_df,agency_df)
+agency_geo_df.to_excel(join("datasets", "agencies_geo_preprocessed.xlsx"))

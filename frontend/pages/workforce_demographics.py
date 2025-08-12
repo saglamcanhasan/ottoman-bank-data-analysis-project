@@ -51,9 +51,9 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("nation-count")
-create_figure_callback(lambda **kwargs: request("nation-count", **kwargs), lambda df:pie(df, "Nationality Composition of Employees"), "nation-count", True, True, False, True, True)
-create_figure_callback(lambda **kwargs: request("nation-distribution", **kwargs), lambda df: combine([plot(df, "Year", nationality, "", index) for index, nationality in enumerate(df)], [], "Year", ["Ratio of Nationality"], "Nationality Composition vs. Year", "right"), "nation-distribution", True, True, False, True, True, filter_id="nation-count")
+create_figure_callback(lambda **kwargs: request("nation-count", **kwargs), lambda df:pie(df, "Nationality Composition of Employees"), "nation-count", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("nation-distribution", **kwargs), lambda df: combine([plot(df, "Year", nationality, "", index) for index, nationality in enumerate(df.drop(columns=["Year"]).columns if df is not None and type(df) is not str else [None])], [], "Year", ["Ratio of Nationality"], "Nationality Composition vs. Year", "right"), "nation-distribution", True, True, False, True, True, filter_id="nation-count")
 
 create_agency_dropdown_callback("religion-count")
 create_figure_callback(lambda **kwargs: request("religion-count", **kwargs), lambda df:pie(df, "Religious Composition of Employees"), "religion-count", True, True, False, True, True)
-create_figure_callback(lambda **kwargs: request("religion-distribution", **kwargs), lambda df: combine([plot(df, "Year", religion, "", index) for index, religion in enumerate(df.drop(columns=["Year"]).columns)], [], "Year", ["Ratio of Believing Employees"], "Religious Composition vs. Year", "right"), "religion-distribution", True, True, False, True, True, filter_id="religion-count")
+create_figure_callback(lambda **kwargs: request("religion-distribution", **kwargs), lambda df: combine([plot(df, "Year", religion, "", index) for index, religion in enumerate(df.drop(columns=["Year"]).columns if df is not None and type(df) is not str else [None])], [], "Year", ["Ratio of Believing Employees"], "Religious Composition vs. Year", "right"), "religion-distribution", True, True, False, True, True, filter_id="religion-count")

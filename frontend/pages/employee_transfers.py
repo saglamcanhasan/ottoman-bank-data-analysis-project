@@ -46,7 +46,7 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("transfer-network")
-create_figure_callback(lambda **kwargs: request("employee-transfers", **kwargs), lambda elements: elements, "transfer-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-transfers", **kwargs), lambda elements: elements if elements is not None and type(elements) is not str else {}, "transfer-network", True, True, True, True, True, True)
 
 create_agency_dropdown_callback("transfer-flow")
 create_figure_callback(lambda **kwargs: request("employee-flow", **kwargs), lambda elements: sankey(elements, "Employee Flow Between Agencies"), "transfer-flow", True, True, True, True, True)

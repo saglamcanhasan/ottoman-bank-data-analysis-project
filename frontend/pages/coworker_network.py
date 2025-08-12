@@ -62,10 +62,10 @@ def layout():
     
 # callbacks
 create_agency_dropdown_callback("coworker-network")
-create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[0], lambda elements: elements, "coworker-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 0), lambda elements: elements if elements is not None and type(elements) is not str else {}, "coworker-network", True, True, True, True, True, True)
 
 create_agency_dropdown_callback("employee-connection")
-create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[1], lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 1), lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
 
 create_agency_dropdown_callback("partner-employees")
-create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[2], lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 2), lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)

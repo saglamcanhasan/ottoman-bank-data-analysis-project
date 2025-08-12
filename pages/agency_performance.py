@@ -2,7 +2,7 @@ import dash
 from dash import html
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 from utils.callbacks.figure_callbacks import create_figure_callback
-from utils.graph.graph import bar, table, box
+from utils.graph.graph import bar, table, box, scatter
 from utils.server.agency_performance_analysis import generate_agency_vs_avgtenuredf, generate_top_agency_empcountdf, generate_emp_tenuredf
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 
@@ -65,4 +65,4 @@ create_figure_callback(generate_top_agency_empcountdf, lambda df: bar(df, 'City'
 create_figure_callback(generate_emp_tenuredf, lambda df: box(df, 'City', 'Tenure','City',"Average Employee Tenure by Agency", "Agencies","Tenure" , False), "employee-tenure", True, True, True, False, True, False, filter_id="employee-tenure")
 create_agency_dropdown_callback("employee-tenure")
 
-create_figure_callback(generate_agency_vs_avgtenuredf, lambda df: table(df, None, "k"), "size-vs-tenure", True, True, True, False, True, False, filter_id="size-vs-tenure")
+create_figure_callback(generate_agency_vs_avgtenuredf, lambda df: scatter(df,  'Avg Tenure', 'Unique Employee Count', "Agency Size vs. Employee Tenure",  'Average Tenure','Employee Count of Agency', ['City']), "size-vs-tenure", True, True, True, False, True, False, filter_id="size-vs-tenure")

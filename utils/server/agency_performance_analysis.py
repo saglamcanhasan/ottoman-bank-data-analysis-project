@@ -53,7 +53,7 @@ def generate_emp_tenuredf(selected_countries=None, selected_cities=None, selecte
     if selected_countries is None or len(selected_countries) == 0:
         emp_tenure_df = emp_tenure_df[emp_tenure_df['City'] != 'Unknown']
     
-    print(emp_tenure_df)    
+    #print(emp_tenure_df)    
     return emp_tenure_df   
    
    
@@ -84,6 +84,7 @@ def generate_agency_vs_avgtenuredf(selected_countries=None, selected_cities=None
         return pd.DataFrame()
     
     agency_vs_tenure_df = agency_size_df.merge(avg_tenure_df, how='outer', on='City')
+    agency_vs_tenure_df['Avg Tenure'] = agency_vs_tenure_df['Avg Tenure'].round(4)
     
     #print(agency_vs_tenure_df)
     return pd.DataFrame(agency_vs_tenure_df)

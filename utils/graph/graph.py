@@ -89,7 +89,10 @@ def plot(df, x_label, y_label, title, color_index=0):
 
 def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="", y_title=""):
     if df.empty:
-        return px.bar()
+        fig = px.bar()
+        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+        theme(fig)
+        return fig
     
     if orientation == "h":
         x_label, y_label = y_label, x_label
@@ -129,7 +132,10 @@ def pie(df, title):
 
 def gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
     if df.empty:
-        return px.timeline()  # Returning an empty bar chart
+        fig = px.timeline()
+        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+        theme(fig)
+        return fig
     
     fig = px.timeline(df, 
                       x_start=x_start_column,
@@ -181,7 +187,10 @@ def sankey(elements: dict, title: str):
 
 def table(df, columns_to_display=None, title="Table Title"):
     if df.empty:
-        return go.Figure() 
+        fig = go.Figure()
+        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+        theme(fig)
+        return fig 
 
     if columns_to_display is None:
         df_filtered = df
@@ -209,7 +218,10 @@ def table(df, columns_to_display=None, title="Table Title"):
 
 def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
     if df.empty:
-        return px.box()
+        fig = px.box()
+        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+        theme(fig)
+        return fig
     
     fig = px.box(df, 
                  x= x_col,
@@ -229,6 +241,33 @@ def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True)
     
     theme(fig)
 
+    return fig
+
+def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
+    if df.empty:
+        fig = px.scatter()
+        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+        theme(fig)
+        return fig
+
+    if hover_cols is None: hover_cols = []
+        
+    fig = px.scatter(df, 
+                     x=x_col, 
+                     y=y_col, 
+                     title=title,
+                     labels={x_col: x_title, y_col: y_title},
+                     color=df[x_col],
+                     color_continuous_scale=colors,
+                     opacity=0.85,
+                     hover_data=hover_cols)
+
+    fig.update_layout(
+        xaxis_title=x_title,
+        yaxis_title=y_title,
+    )
+
+    theme(fig)  
     return fig
 
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):

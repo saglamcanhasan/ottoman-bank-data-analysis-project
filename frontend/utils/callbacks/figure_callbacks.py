@@ -1,5 +1,4 @@
 from dash import Input, Output, callback
-from utils.server.filter_parameters import countries, cities, districts
 
 def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, is_cyto=False, filter_id: str=""):
     # get figure id

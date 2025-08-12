@@ -1,7 +1,7 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from collections import defaultdict
-from utils.server.data_loader import employee_df, agency_df
+from services.data_loader import employee_df, agency_df
 
 # time period bounds
 start = 1855
@@ -40,3 +40,15 @@ religions = np.unique(employee_df["Religion"].dropna())
 religions = religions[(religions != "Unknown") & (religions != "Other")].tolist()
 
 ids = np.unique(employee_df["ID"].dropna()).tolist()
+
+async def filter_parameters():
+    return {
+        "countries": countries,
+        "cities": cities,
+        "districts": districts,
+        "functions": functions,
+        "religions": religions,
+        "ids": ids,
+        "start": start,
+        "end": end
+    }

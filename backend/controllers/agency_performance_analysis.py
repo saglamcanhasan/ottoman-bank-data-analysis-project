@@ -1,6 +1,6 @@
 import pandas as pd
-from utils.server.data_loader import employee_df
-from utils.server.filter import filter
+from utils.filter import filter
+from services.data_loader import employee_df
 
 def generate_agency_performance_df(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
@@ -24,7 +24,7 @@ def generate_agency_empcountdf(selected_countries=None, selected_cities=None, se
     return unique_employees_per_city
     
    
-def generate_top_agency_empcountdf(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
+async def top_agencies(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
     df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts,selected_functions,
@@ -37,7 +37,7 @@ def generate_top_agency_empcountdf(selected_countries=None, selected_cities=None
         df = df.sort_values(by='Unique Employee Count', ascending=False).head(10)
     return df
    
-def generate_emp_tenuredf(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
+async def employee_tenure(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
     df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts,selected_functions,
@@ -71,7 +71,7 @@ def generate_avg_emp_tenuredf(selected_countries=None, selected_cities=None, sel
     return avg_tenure_by_agency
 
 
-def generate_agency_vs_avgtenuredf(selected_countries=None, selected_cities=None, selected_districts=None, selected_functions=None,
+async def size_vs_tenure(selected_countries=None, selected_cities=None, selected_districts=None, selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
     agency_size_df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts, selected_functions,

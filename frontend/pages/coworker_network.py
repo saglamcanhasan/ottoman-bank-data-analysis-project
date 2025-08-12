@@ -1,9 +1,9 @@
 import dash
-from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 from utils.graph.graph import bar
-from utils.server.coworker_network_analysis import coworker_network
+from services.request import request
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
+from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
 dash.register_page(__name__, path="/coworker-network")
 
@@ -62,10 +62,10 @@ def layout():
     
 # callbacks
 create_agency_dropdown_callback("coworker-network")
-create_figure_callback(lambda **kwargs: coworker_network(**kwargs)[0], lambda elements: elements, "coworker-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[0], lambda elements: elements, "coworker-network", True, True, True, True, True, True)
 
 create_agency_dropdown_callback("employee-connection")
-create_figure_callback(lambda **kwargs: coworker_network(**kwargs, top=10)[1], lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[1], lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
 
 create_agency_dropdown_callback("partner-employees")
-create_figure_callback(lambda **kwargs: coworker_network(**kwargs, top=10)[2], lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("coworker-network", **kwargs)[2], lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)

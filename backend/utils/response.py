@@ -12,6 +12,11 @@ async def respond(request, controller):
         if isinstance(response, pd.DataFrame):
             response = response.to_dict(orient="records")
             type = "dataframe"
+        if isinstance(response, tuple):
+            types = list("dataframe" if isinstance(item, pd.DataFrame) else "builtin" for item in response)
+            if any(type == "dataframe" for type in types):
+                response = [item.to_dict(orient="records") if isinstance(item, pd.DataFrame) else item for item in response]
+                type = types
 
         return JSONResponse(content={"data": jsonable_encoder(response), "type": type}, status_code=200)
     

@@ -1,7 +1,7 @@
 import dash
+from services.request import request
 from utils.graph.graph import sankey
 from utils.callbacks.figure_callbacks import create_figure_callback
-from utils.server.employee_transfers_analysis import employee_transfers, employee_flow
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
@@ -46,7 +46,7 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("transfer-network")
-create_figure_callback(employee_transfers, lambda elements: elements, "transfer-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-transfers", **kwargs), lambda elements: elements, "transfer-network", True, True, True, True, True, True)
 
 create_agency_dropdown_callback("transfer-flow")
-create_figure_callback(employee_flow, lambda elements: sankey(elements, "Employee Flow Between Agencies"), "transfer-flow", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-flow", **kwargs), lambda elements: sankey(elements, "Employee Flow Between Agencies"), "transfer-flow", True, True, True, True, True)

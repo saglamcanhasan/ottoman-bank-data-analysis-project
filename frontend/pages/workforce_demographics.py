@@ -1,8 +1,8 @@
 import dash
+from services.request import request
 from utils.graph.graph import plot, pie, combine
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
-from utils.server.workforce_demographics_analysis import religion_count, religion_distribution
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
 dash.register_page(__name__, path="/workforce-demographics")
@@ -51,5 +51,5 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("religion-count")
-create_figure_callback(religion_count, lambda df:pie(df, "Religious Composition of Employees"), "religion-count", True, True, False, True, True)
-create_figure_callback(religion_distribution, lambda df: combine([plot(df, "Year", religion, "", index) for index, religion in enumerate(df.drop(columns=["Year"]).columns)], [], "Year", ["Ratio of Believing Employees"], "Religious Composition vs. Year", "right"), "religion-distribution", True, True, False, True, True, filter_id="religion-count")
+create_figure_callback(lambda **kwargs: request("religion-count", **kwargs), lambda df:pie(df, "Religious Composition of Employees"), "religion-count", True, True, False, True, True)
+create_figure_callback(lambda **kwargs: request("religion-distribution", **kwargs), lambda df: combine([plot(df, "Year", religion, "", index) for index, religion in enumerate(df.drop(columns=["Year"]).columns)], [], "Year", ["Ratio of Believing Employees"], "Religious Composition vs. Year", "right"), "religion-distribution", True, True, False, True, True, filter_id="religion-count")

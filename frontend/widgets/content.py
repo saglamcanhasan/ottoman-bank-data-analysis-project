@@ -1,7 +1,7 @@
 from dash import html, dcc
 import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
-from utils.server.filter_parameters import countries, functions, religions, ids, start, end
+from services.filter_parameters import countries, functions, religions, ids, start, end
 
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([

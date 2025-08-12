@@ -1,8 +1,8 @@
-from utils.server.filter import filter
+from utils.filter import filter
 from plotly.colors import sample_colorscale
-from utils.server.data_loader import employee_df
+from services.data_loader import employee_df
 
-def coworker_network(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
+async def coworker_network(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=10):
     # copy dataset
     df = employee_df.copy()
 

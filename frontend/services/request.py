@@ -8,14 +8,26 @@ url = os.getenv("URL_BACKEND")
 port = int(os.getenv("PORT_BACKEND"))
 
 def request(figure_id: str, **filter_parameters):
-    print(figure_id, filter_parameters)
-    response = requests.post(f"http://{url}:{port}/api/{figure_id}", json=filter_parameters)
+    server_url = f"http://{url}:{port}/api/{figure_id}"
 
-    # return data if the request was successful
-    if response.status_code == 200:
-        response = response.json()
-        if response["type"] == "dataframe":
-            return pd.DataFrame(response["data"])
-        return response["data"]
-    else:
-        print(response.json())
+    try:
+        if figure_id == "filter-parameters":
+            response = requests.get(server_url)
+        else:
+            response = requests.post(server_url, json=filter_parameters)
+
+        # return data if the request was successful
+        if response.status_code == 200:
+            response = response.json()
+            if isinstance(response["type"], list):
+                return list(pd.DataFrame(data) if type == "dataframe" else data for type, data in zip(response["type"], response["data"]))
+            elif response["type"] == "dataframe":
+                return pd.DataFrame(response["data"])
+            return response["data"]
+        else:
+            print(f"ERROR <= {response.status_code} - {response.text}")
+            return None
+        
+    except Exception as exception:
+        print(f"ERROR <= {exception}")
+        return None

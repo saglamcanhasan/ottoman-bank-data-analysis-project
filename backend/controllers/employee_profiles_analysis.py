@@ -1,5 +1,5 @@
 import pandas as pd
-from utils.server.data_loader import employee_df
+from services.data_loader import employee_df
 
 def generate_employee_profile_df(selected_ids=None):
     if selected_ids:
@@ -8,7 +8,7 @@ def generate_employee_profile_df(selected_ids=None):
         employee_data = employee_df
     return employee_data
 
-def get_multiple_employees_gantt_data(selected_ids=None):
+async def career_timeline(selected_ids=None):
     
     df = generate_employee_profile_df(selected_ids)
     
@@ -47,7 +47,7 @@ def get_multiple_employees_gantt_data(selected_ids=None):
 
 
 
-def get_employee_profile_data(selected_ids=None):
+async def employee_profiles(selected_ids=None):
     
     df = generate_employee_profile_df(selected_ids)
     

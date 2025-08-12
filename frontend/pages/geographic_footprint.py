@@ -1,9 +1,9 @@
 import dash
-from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-from utils.server.geographic_footprint_analysis import generate_geo_df
 from utils.graph.graph import map
+from services.request import request
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
+from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
 
 dash.register_page(__name__, path="/geographic-footprint")
 
@@ -34,4 +34,4 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("agency-map")
-create_figure_callback(generate_geo_df, lambda df:map(df, "Employee Count", "City", "Agency Geographic Map"), "agency-map", True, True, True, False, True)
+create_figure_callback(lambda **kwargs: request("geo-footprint", **kwargs), lambda df:map(df, "Employee Count", "City", "Agency Geographic Map"), "agency-map", True, True, True, False, True)

@@ -1,7 +1,7 @@
-from utils.server.data_loader import agency_geo_df, employee_df
-from utils.server.filter import filter
+from utils.filter import filter
+from services.data_loader import agency_geo_df, employee_df
 
-def generate_geo_df(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
+async def geo_footprint(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925]):
     df = agency_geo_df.copy()
     emp_df = employee_df.copy()

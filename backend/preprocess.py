@@ -714,6 +714,25 @@ def generate_agency(employee_df, agency_df):
 
     return employee_df, agency_df
 
+def extract_agency(employee_df, agency_df):
+    agency_df = pd.merge(agency_df, employee_df.loc[:, ["Agency", "District", "City", "Country"]].drop_duplicates(), on=["Agency", "District", "City", "Country"], how="outer")
+
+    agency_years_df = employee_df.groupby("Agency").agg(opening_year_filler=("Career Start Year", "min"), closing_year_filler=("Career End Year", "max")).reset_index()
+    agency_years_df = agency_years_df.rename(columns={"opening_year_filler": "Opening Year Filler", "closing_year_filler": "Closing Year Filler"})
+    
+    agency_df = agency_df.merge(agency_years_df, on="Agency", how="left")
+
+    mask = agency_df["Opening Year"].isna() & agency_df["Opening Year Filler"].notna()
+    agency_df.loc[mask, "Opening Year"] = agency_df.loc[mask, "Opening Year"].fillna(agency_df.loc[mask, "Opening Year Filler"].astype(str)).astype(float)
+    mask = agency_df["Closing Year"].isna() & agency_df["Closing Year Filler"].notna()
+    agency_df.loc[mask, "Closing Year"] = agency_df.loc[mask, "Closing Year"].fillna(agency_df.loc[mask, "Closing Year Filler"].astype(str)).astype(float)
+    agency_df.drop(columns=["Opening Year Filler", "Closing Year Filler"], inplace=True)
+    
+    return employee_df, agency_df
+
+def locate_agencies(agency_df):
+    return agency_df
+
 def sort(employee_df, agency_df):
     employee_df.sort_values(by=["ID", "Record Year"], inplace=True)
     agency_df.sort_values(by=["Opening Year", "Agency"], inplace=True)
@@ -732,6 +751,8 @@ def preprocess(employee_df, agency_df):
     employee_df = extract_period_start_end_year(employee_df)
     employee_df, agency_df = fill_na(employee_df, agency_df)
     employee_df, agency_df = generate_agency(employee_df, agency_df)
+    employee_df, agency_df = extract_agency(employee_df, agency_df)
+    agency_df = locate_agencies(agency_df)
     employee_df, agency_df = sort(employee_df, agency_df)
 
     return employee_df, agency_df

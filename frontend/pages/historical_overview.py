@@ -3,7 +3,7 @@ from utils.graph.graph import plot, bar, combine
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-from utils.services.request import request
+from services.request import request
 
 dash.register_page(__name__, path="/historical-overview")
 

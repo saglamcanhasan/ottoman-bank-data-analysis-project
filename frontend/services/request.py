@@ -6,9 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 url = os.getenv("URL_BACKEND")
 port = int(os.getenv("PORT_BACKEND"))
+debug = bool(os.getenv("DEBUG"))
 
 def request(figure_id: str, **filter_parameters):
     server_url = f"http://{url}:{port}/api/{figure_id}"
+
+    if debug:
+        print(f"REQUEST   => {server_url} - {str(filter_parameters)[:50]}...")
 
     try:
         if figure_id == "filter-parameters":
@@ -18,16 +22,24 @@ def request(figure_id: str, **filter_parameters):
 
         # return data if the request was successful
         if response.status_code == 200:
+            if debug:
+                print(f"RESPONSE  <= {server_url} - {response.status_code} : {response.text[:50]}...")
+                
             response = response.json()
             if isinstance(response["type"], list):
                 return list(pd.DataFrame(data) if type == "dataframe" else data for type, data in zip(response["type"], response["data"]))
             elif response["type"] == "dataframe":
                 return pd.DataFrame(response["data"])
             return response["data"]
+        
+        # return error message if the request failed
+        elif response.status_code == 404:
+            return response.json().get("error", "API not found")
+        
         else:
-            print(f"ERROR <= {response.status_code} - {response.text}")
             return None
         
     except Exception as exception:
-        print(f"ERROR <= {exception}")
+        if debug:
+            print(f"EXCEPTION <= {exception}")
         return None

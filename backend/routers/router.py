@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List
 from utils.response import respond
+from fastapi.responses import JSONResponse
 from controllers.filter_parameters import filter_parameters
 from controllers.coworker_network_analysis import coworker_network
 from controllers.geographic_footprint_analysis import geo_footprint
@@ -30,6 +31,9 @@ async def route_get_requests(api_name: str):
     if api_name == "filter-parameters":
         return await respond(Request(), filter_parameters)
     
+    else:
+        return JSONResponse(status_code=404, content={"error": "API not found"})
+    
 @router.post("/{api_name}")
 async def route_post_requests(api_name: str, request: Request):    
     if api_name == "employee-count":
@@ -38,10 +42,8 @@ async def route_post_requests(api_name: str, request: Request):
         return await respond(request, agency_count)
     elif api_name == "employee-turnover":
         return await respond(request, employee_turnover)
-    
-    elif api_name == "geographic-footprint":
+    elif api_name == "geo-footprint":
         return await respond(request, geo_footprint)
-    
     elif api_name == "religion-count":
         return await respond(request, religion_count)
     elif api_name == "religion-distribution":
@@ -53,7 +55,6 @@ async def route_post_requests(api_name: str, request: Request):
         return await respond(request, employee_tenure)
     elif api_name == "size-vs-tenure":
         return await respond(request, size_vs_tenure)
-    
     elif api_name == "employee-transfers":
         return await respond(request, employee_transfers)
     elif api_name == "employee-flow":
@@ -63,6 +64,8 @@ async def route_post_requests(api_name: str, request: Request):
         return await respond(request, employee_profiles)
     elif api_name == "career-timeline":
         return await respond(request, career_timeline)  
-    
     elif api_name == "coworker-network":
         return await respond(request, coworker_network)
+    
+    else:
+        return JSONResponse(status_code=404, content={"error": "API not found"})

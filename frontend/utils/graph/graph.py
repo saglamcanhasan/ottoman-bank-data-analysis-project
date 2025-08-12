@@ -74,7 +74,34 @@ def theme(fig, legend_location="top"):
         plot_bgcolor="#EFEBD6",
     )
 
+def error(type: Literal["server", "chart"]):
+    text = "We couldn’t display this chart.<br>Please try again later on." if type == "server" else "This chart is not yet available"
+
+    fig = go.Figure()
+
+    theme(fig)
+
+    fig.add_annotation(
+        text=f"<b>{text}.</b>",
+        x=0.5, y=0.5,
+        xref="paper", yref="paper",
+        showarrow=False,
+        font=dict(size=25),
+    )
+    fig.update_layout(
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        meta=dict(error=True, type=type)
+    )
+
+    return fig
+
 def plot(df, x_label, y_label, title, color_index=0):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     fig = px.line(df, x_label, y_label, title=title)
 
     theme(fig)
@@ -88,10 +115,16 @@ def plot(df, x_label, y_label, title, color_index=0):
     return fig
 
 def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="", y_title=""):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     if df.empty:
         fig = px.bar()
-        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+
         theme(fig)
+
         return fig
     
     if orientation == "h":
@@ -120,6 +153,11 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="",
     return fig
 
 def pie(df, title):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     names = df.columns.tolist()
     values = df.iloc[0].values.tolist()
 
@@ -131,10 +169,16 @@ def pie(df, title):
     return fig
 
 def gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     if df.empty:
         fig = px.timeline()
-        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+
         theme(fig)
+        
         return fig
     
     fig = px.timeline(df, 
@@ -156,6 +200,11 @@ def gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xsta
     return fig
 
 def sankey(elements: dict, title: str):
+    if elements is None:
+        return error("server")
+    elif isinstance(elements, str):
+        return error("chart")
+    
     fig = go.Figure(
         data=[go.Sankey(
             arrangement="snap",
@@ -186,10 +235,16 @@ def sankey(elements: dict, title: str):
     return fig
 
 def table(df, columns_to_display=None, title="Table Title"):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     if df.empty:
         fig = go.Figure()
-        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+
         theme(fig)
+
         return fig 
 
     if columns_to_display is None:
@@ -215,12 +270,17 @@ def table(df, columns_to_display=None, title="Table Title"):
 
     return fig
 
-
 def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     if df.empty:
         fig = px.box()
-        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+
         theme(fig)
+
         return fig
     
     fig = px.box(df, 
@@ -244,10 +304,16 @@ def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True)
     return fig
 
 def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
+    
     if df.empty:
         fig = px.scatter()
-        fig.update_layout(xaxis_title="Unfortunately, there is no data for the filters you have selected")
+
         theme(fig)
+
         return fig
 
     if hover_cols is None: hover_cols = []
@@ -272,11 +338,18 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
 
 
 def map(df, size_col='Employee Count', text_col='City', title=""):
+    if df is None:
+        return error("server")
+    elif isinstance(df, str):
+        return error("chart")
 
     if df.empty or 'Latitude' not in df or 'Longitude' not in df or size_col not in df:
         fig = go.Figure()
+
         fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})
+        
         theme(fig)
+
         return fig
     
     # Create traces for each city
@@ -313,9 +386,13 @@ def map(df, size_col='Employee Count', text_col='City', title=""):
     )
     
     theme(fig)
+
     return fig
 
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
+    if all(figure.layout.meta and figure.layout.meta.get("error", False) for figure in figures_y_left + figures_y_right):
+        return error((figures_y_left + figures_y_right)[0].layout.meta["type"])
+    
     is_there_second_y_label = len(figures_y_right) != 0
     
     supfig = make_subplots(specs=[[{"secondary_y": is_there_second_y_label}]])

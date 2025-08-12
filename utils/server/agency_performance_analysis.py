@@ -2,18 +2,18 @@ import pandas as pd
 from utils.server.data_loader import employee_df
 from utils.server.filter import filter
 
-def generate_agency_performance_df(selected_countries=None, selected_cities=None, selected_districts= None,selected_grouped_functions=None,
+def generate_agency_performance_df(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     df = employee_df.copy()
     time_period_start_year, time_period_end_year = selected_time_period
-    df = filter(df, True, selected_countries, selected_cities, None, selected_grouped_functions, selected_religions, None, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, None, selected_functions, selected_religions, None, time_period_start_year, time_period_end_year)
     return df
 
 
-def generate_agency_empcountdf(selected_countries=None, selected_cities=None, selected_districts= None,selected_grouped_functions=None,
+def generate_agency_empcountdf(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
-    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts ,selected_grouped_functions,
+    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts ,selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
     if df.empty:
         return pd.DataFrame()
@@ -24,10 +24,10 @@ def generate_agency_empcountdf(selected_countries=None, selected_cities=None, se
     return unique_employees_per_city
     
    
-def generate_top_agency_empcountdf(selected_countries=None, selected_cities=None, selected_districts= None,selected_grouped_functions=None,
+def generate_top_agency_empcountdf(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
-    df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts,selected_grouped_functions,
+    df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts,selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
    
     if selected_countries is None or len(selected_countries) == 0:
@@ -37,10 +37,10 @@ def generate_top_agency_empcountdf(selected_countries=None, selected_cities=None
         df = df.sort_values(by='Unique Employee Count', ascending=False).head(10)
     return df
    
-def generate_emp_tenuredf(selected_countries=None, selected_cities=None, selected_districts= None,selected_grouped_functions=None,
+def generate_emp_tenuredf(selected_countries=None, selected_cities=None, selected_districts= None,selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
-    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts,selected_grouped_functions,
+    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts,selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
    
     if df.empty:
@@ -57,10 +57,10 @@ def generate_emp_tenuredf(selected_countries=None, selected_cities=None, selecte
     return emp_tenure_df   
    
    
-def generate_avg_emp_tenuredf(selected_countries=None, selected_cities=None, selected_districts= None, selected_grouped_functions=None,
+def generate_avg_emp_tenuredf(selected_countries=None, selected_cities=None, selected_districts= None, selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
    
-    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts, selected_grouped_functions,
+    df = generate_agency_performance_df(selected_countries, selected_cities, selected_districts, selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
     if df.empty:
         return pd.DataFrame()
@@ -71,13 +71,13 @@ def generate_avg_emp_tenuredf(selected_countries=None, selected_cities=None, sel
     return avg_tenure_by_agency
 
 
-def generate_agency_vs_avgtenuredf(selected_countries=None, selected_cities=None, selected_districts=None, selected_grouped_functions=None,
+def generate_agency_vs_avgtenuredf(selected_countries=None, selected_cities=None, selected_districts=None, selected_functions=None,
                                  selected_religions=None, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     
-    agency_size_df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts, selected_grouped_functions,
+    agency_size_df = generate_agency_empcountdf(selected_countries, selected_cities, selected_districts, selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
     
-    avg_tenure_df = generate_avg_emp_tenuredf(selected_countries, selected_cities, selected_districts, selected_grouped_functions,
+    avg_tenure_df = generate_avg_emp_tenuredf(selected_countries, selected_cities, selected_districts, selected_functions,
                                  selected_religions, selected_time_period, end_inclusive)
     
     if avg_tenure_df.empty or agency_size_df.empty:

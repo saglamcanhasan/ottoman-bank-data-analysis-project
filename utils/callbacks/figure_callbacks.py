@@ -20,8 +20,8 @@ def create_figure_callback(generate_df, generate_figure, figure_id: str, agency:
         arg_names.extend(["selected_countries", "selected_cities", "selected_districts"])
 
     if grouped_function:
-        inputs.append(Input(f"{filter_id}-grouped-function-dropdown", "value"))
-        arg_names.append("selected_grouped_functions")
+        inputs.append(Input(f"{filter_id}-function-dropdown", "value"))
+        arg_names.append("selected_functions")
 
     if religion:
         inputs.append(Input(f"{filter_id}-religion-dropdown", "value"))

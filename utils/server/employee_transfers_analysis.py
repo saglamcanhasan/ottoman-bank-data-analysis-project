@@ -3,7 +3,7 @@ from utils.server.filter import filter
 from plotly.colors import sample_colorscale
 from utils.server.data_loader import employee_df
 
-def employee_transfers(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
+def employee_transfers(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=50):
     # copy dataset
     df = employee_df.copy()
 
@@ -14,7 +14,7 @@ def employee_transfers(selected_countries, selected_cities, selected_districts, 
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
 
     # find transfers
     transfers = list()
@@ -76,7 +76,7 @@ def employee_transfers(selected_countries, selected_cities, selected_districts, 
 
     return elements
 
-def employee_flow(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list= [1855, 1925], end_inclusive: bool = False):
+def employee_flow(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list= [1855, 1925], end_inclusive: bool = False):
     # copy dataset
     df = employee_df.copy()
 
@@ -87,7 +87,7 @@ def employee_flow(selected_countries, selected_cities, selected_districts, selec
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
 
     # find transfers
     transfers = list()

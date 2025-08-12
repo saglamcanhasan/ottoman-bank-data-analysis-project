@@ -1,7 +1,7 @@
 from dash import html, dcc
 import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
-from utils.server.filter_parameters import countries, grouped_functions, religions, ids, start, end
+from utils.server.filter_parameters import countries, functions, religions, ids, start, end
 
 def introduction(title: str, description: str, right_widget=list()):
     return dbc.Container([
@@ -146,7 +146,7 @@ def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=Fa
     return dbc.Container(containers, className="section-container", fluid=True)
 
 
-def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool):
+def filter(filter_id: str, agency: bool, function: bool, religion: bool, id: bool, time_period: bool):
     filter_rows = []
 
     if agency:
@@ -184,18 +184,18 @@ def filter(filter_id: str, agency: bool, grouped_function: bool, religion: bool,
             ])
         )
 
-    if grouped_function:
-        filtered_options = grouped_functions
-        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": grouped_function, "value": grouped_function} for grouped_function in filtered_options if agency != "Unknown"]
+    if function:
+        filtered_options = functions
+        final_options = [{"label": "Unknown", "value": "Unknown"}] + [{"label": "", "value": "", "disabled": True}] + [{"label": function, "value": function} for function in filtered_options if agency != "Unknown"]
         filter_rows.append(
             dbc.Row([
-                dbc.Label("Grouped Function", html_for=f"{filter_id}-grouped-function-dropdown", className="filter-title"),
+                dbc.Label("Function", html_for=f"{filter_id}-function-dropdown", className="filter-title"),
                 dcc.Dropdown(
-                    id=f"{filter_id}-grouped-function-dropdown",
+                    id=f"{filter_id}-function-dropdown",
                     options=final_options,
                     value=[],
                     multi=True,
-                    placeholder="select grouped functions",
+                    placeholder="select functions",
                     className="filter-dropdown"
                 )
             ])

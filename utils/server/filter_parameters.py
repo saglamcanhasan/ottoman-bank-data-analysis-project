@@ -33,8 +33,8 @@ countries = sorted(countries - {"Unknown"})
 cities = {country: sorted(city_set - {"Unknown"}) for country, city_set in cities.items()}
 districts = {city: sorted(district_set - {"Unknown"}) for city, district_set in districts.items()}
 
-grouped_functions = np.unique(employee_df["Function"])
-grouped_functions = grouped_functions[grouped_functions != "Unknown"].tolist()
+functions = np.unique(employee_df["Function"])
+functions = functions[functions != "Unknown"].tolist()
 
 religions = np.unique(employee_df["Religion"].dropna())
 religions = religions[(religions != "Unknown") & (religions != "Other")].tolist()

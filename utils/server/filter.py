@@ -1,13 +1,13 @@
 from pandas import DataFrame
 
-def filter(df: DataFrame, is_employee: bool, selected_countries=None, selected_cities=None, selected_districts=None, selected_grouped_functions=None, selected_religions=None, selected_ids=None, time_period_start_year=None, time_period_end_year=None) -> DataFrame:
+def filter(df: DataFrame, is_employee: bool, selected_countries=None, selected_cities=None, selected_districts=None, selected_functions=None, selected_religions=None, selected_ids=None, time_period_start_year=None, time_period_end_year=None) -> DataFrame:
     # filter dataset
     if is_employee:
         if selected_ids is not None and len(selected_ids) != 0:
             df = df[df["ID"].isin(selected_ids)]
 
-        if selected_grouped_functions is not None and len(selected_grouped_functions) != 0:
-            df = df[df["Function"].isin(selected_grouped_functions)]
+        if selected_functions is not None and len(selected_functions) != 0:
+            df = df[df["Function"].isin(selected_functions)]
 
         if selected_religions is not None and len(selected_religions) != 0:
             df = df[df["Religion"].isin(selected_religions)]

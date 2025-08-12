@@ -5,7 +5,7 @@ from utils.server.filter import filter
 from utils.server.filter_parameters import religions
 from utils.server.data_loader import employee_df
 
-def religion_count(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
+def religion_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     # copy dataset
     df = employee_df.copy()
 
@@ -16,7 +16,7 @@ def religion_count(selected_countries, selected_cities, selected_districts, sele
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, None, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, None, selected_ids, time_period_start_year, time_period_end_year)
 
     # get religious counts
     religion_counts = defaultdict(int)
@@ -43,7 +43,7 @@ def religion_count(selected_countries, selected_cities, selected_districts, sele
 
     return religion_counts
 
-def religion_distribution(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
+def religion_distribution(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
     # copy dataset
     df = employee_df.copy()
 
@@ -54,7 +54,7 @@ def religion_distribution(selected_countries, selected_cities, selected_district
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, None, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, None, selected_ids, time_period_start_year, time_period_end_year)
 
     # get religious counts
     religion_counts_df = pd.DataFrame(0, index=np.arange(time_period_start_year, time_period_end_year+1), columns=religions+["Unknown", "Other"])

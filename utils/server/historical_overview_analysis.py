@@ -3,7 +3,7 @@ import pandas as pd
 from utils.server.filter import filter
 from utils.server.data_loader import employee_df, agency_df
 
-def employee_count(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
+def employee_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
     # copy dataset
     df = employee_df.copy()
 
@@ -14,7 +14,7 @@ def employee_count(selected_countries, selected_cities, selected_districts, sele
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
 
     # count active employees
     active_employees_df = pd.Series(0, dtype=int, index=np.arange(time_period_start_year, time_period_end_year+1))
@@ -70,7 +70,7 @@ def agency_count(selected_countries, selected_cities, selected_districts, select
     open_agencies_df = open_agencies_df.reset_index().rename(columns={"index": "Year", 0: "Agency Count"})
     return open_agencies_df
 
-def employee_turnover(selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925]):
+def employee_turnover(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925]):
     # copy dataset
     df = employee_df.copy()
 
@@ -81,7 +81,7 @@ def employee_turnover(selected_countries, selected_cities, selected_districts, s
     df = df.dropna(subset=["Career Start Year"])
 
     # filter dataset
-    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_grouped_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
 
     # initialize empty counters
     year_range = np.arange(time_period_start_year, time_period_end_year + 1)

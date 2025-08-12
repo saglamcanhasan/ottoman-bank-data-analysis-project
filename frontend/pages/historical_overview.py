@@ -3,7 +3,7 @@ from utils.graph.graph import plot, bar, combine
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
-from utils.server.historical_overview_analysis import employee_count, agency_count, employee_turnover
+from utils.services.request import request
 
 dash.register_page(__name__, path="/historical-overview")
 
@@ -58,10 +58,10 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("total-employees")
-create_figure_callback(employee_count, lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year", 0), "total-employees", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-count", **kwargs), lambda df:plot(df, "Year", "Employee Count", "Number of Employees vs. Year", 0), "total-employees", True, True, True, True, True)
 
 create_agency_dropdown_callback("agency-number")
-create_figure_callback(agency_count, lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year", 0), "agency-number", True, False, False, False, True)
+create_figure_callback(lambda **kwargs: request("agency-count", **kwargs), lambda df:plot(df, "Year", "Agency Count", "Number of Agencies vs. Year", 0), "agency-number", True, False, False, False, True)
 
 create_agency_dropdown_callback("employee-turnover")
-create_figure_callback(employee_turnover, lambda df: combine([bar(df, "Year", "Hires", "", 0), bar(df, "Year", "Departures", "", 6)], [plot(df, "Year", "Net Change", "", 4)], "Year", ["Hires/Departures", "Net Change"], "Number of Hires & Departures vs. Year"), "employee-turnover", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-turnover", **kwargs), lambda df: combine([bar(df, "Year", "Hires", "", 0), bar(df, "Year", "Departures", "", 6)], [plot(df, "Year", "Net Change", "", 4)], "Year", ["Hires/Departures", "Net Change"], "Number of Hires & Departures vs. Year"), "employee-turnover", True, True, True, True, True)

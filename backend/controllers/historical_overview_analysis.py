@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
-from utils.server.filter import filter
-from utils.server.data_loader import employee_df, agency_df
+from utils.filter import filter
+from services.data_loader import employee_df, agency_df
 
-def employee_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
+async def employee_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
     # copy dataset
     df = employee_df.copy()
 
@@ -36,7 +36,7 @@ def employee_count(selected_countries, selected_cities, selected_districts, sele
     active_employees_df = active_employees_df.reset_index().rename(columns={"index": "Year", 0: "Employee Count"})
     return active_employees_df
 
-def agency_count(selected_countries, selected_cities, selected_districts, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
+async def agency_count(selected_countries, selected_cities, selected_districts, selected_time_period: list=[1855, 1925], end_inclusive: bool=False):
     # copy dataset
     df = agency_df.copy()
 
@@ -70,7 +70,7 @@ def agency_count(selected_countries, selected_cities, selected_districts, select
     open_agencies_df = open_agencies_df.reset_index().rename(columns={"index": "Year", 0: "Agency Count"})
     return open_agencies_df
 
-def employee_turnover(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925]):
+async def employee_turnover(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925]):
     # copy dataset
     df = employee_df.copy()
 

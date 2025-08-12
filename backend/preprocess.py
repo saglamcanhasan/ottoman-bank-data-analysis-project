@@ -1,9 +1,9 @@
+import time
 import numpy as np
 import pandas as pd
 from os.path import join
 from rapidfuzz import process, fuzz
 from geopy.geocoders import Nominatim
-import time
 
 def drop_columns(employee_df, agency_df):
     agency_df = agency_df.loc[:, ["Opening date", "Closing date", "City"]]

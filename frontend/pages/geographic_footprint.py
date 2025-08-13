@@ -24,7 +24,7 @@ def layout():
             {
                 "agency-map": {
                     "figure": {},
-                    "filter": filter("agency-map", True, True, True, False, True)
+                    "filter": filter("agency-map", True, True, True, True, True)
                 }
             }
         )
@@ -34,4 +34,4 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("agency-map")
-create_figure_callback(lambda **kwargs: request("geo-footprint", **kwargs), lambda df:map(df, "Employee Count", "City", "Agency Geographic Map"), "agency-map", True, True, True, False, True)
+create_figure_callback(lambda **kwargs: request("geo-footprint", **kwargs), lambda df:map(df, "Agency Geographic Map"), "agency-map", True, True, True, True, True)

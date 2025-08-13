@@ -226,8 +226,8 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Pera": {"district": "Pera", "city": "İstanbul", "country": "Turkey"},
         "Péra": {"district": "Pera", "city": "İstanbul", "country": "Turkey"},
         "Galata": {"district": "Pera", "city": "İstanbul", "country": "Turkey"},
-        "Stamboul": {"district": "Old City", "city": "İstanbul", "country": "Turkey"},
-        "Shamboul": {"district": "Old City", "city": "İstanbul", "country": "Turkey"},
+        "Stamboul": {"district": "Fatih", "city": "İstanbul", "country": "Turkey"},
+        "Shamboul": {"district": "Fatih", "city": "İstanbul", "country": "Turkey"},
         "Yeni Cami": {"district": "Yeni Cami", "city": "İstanbul", "country": "Turkey"},
         "Yen-Cami": {"district": "Yeni Cami", "city": "İstanbul", "country": "Turkey"},
         "Yeni Camı": {"district": "Yeni Cami", "city": "İstanbul", "country": "Turkey"},
@@ -397,7 +397,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Inde": {"district": np.nan, "city": np.nan, "country": "India"},
         "Pékin": {"district": np.nan, "city": "Beijing", "country": "China"},
         "Ain": {"district": np.nan, "city": "Ain", "country": "France"},
-        "Alaouites": {"district": np.nan, "city": np.nan, "country": "Alawite State"},
+        "Alaouites": {"district": np.nan, "city": "Latakia", "country": "Syria"},
         "Arménie": {"district": np.nan, "city": np.nan, "country": "Armenia"},
         "Beyrut": {"district": np.nan, "city": "Beirut", "country": "Lebanon"},
         "Carsous": {"district": "Tarsus", "city": "Mersin", "country": "Turkey"},
@@ -481,7 +481,7 @@ def deduct_district_city_and_country(employee_df, agency_df):
         "Hama": {"district": np.nan, "city": "Hama", "country": "Syria"},
         "Humus": {"district": np.nan, "city": "Homs", "country": "Syria"},
         "Şam": {"district": np.nan, "city": "Damascus", "country": "Syria"},
-        "Aşar": {"district": "Aşar", "city": "Basra", "country": "Iraq"},
+        "Aşar": {"district": "Ashar", "city": "Basra", "country": "Iraq"},
         "Kerkük": {"district": np.nan, "city": "Kirkuk", "country": "Iraq"},
         "Musul": {"district": np.nan, "city": "Mosul", "country": "Iraq"},
         "Beytüllahim": {"district": np.nan, "city": "Bethlehem", "country": "Palestine"},
@@ -728,14 +728,46 @@ def extract_agency(employee_df, agency_df):
     agency_df.loc[mask, "Closing Year"] = agency_df.loc[mask, "Closing Year"].fillna(agency_df.loc[mask, "Closing Year Filler"].astype(str)).astype(float)
     agency_df.drop(columns=["Opening Year Filler", "Closing Year Filler"], inplace=True)
     
-    return employee_df, agency_df
+    return agency_df
 
 def locate_agencies(agency_df):
+    geolocator = Nominatim(user_agent="address_geolocator", timeout=5)
+
+    latitudes = []
+    longitudes = []
+
+    for index, record in agency_df.iterrows():
+        # remove Unknowns
+        address = ", ".join(str(record[column]) for column in ["District", "City", "Country"] if record[column] != "Unknown")
+
+        if len(address) != 0:
+            # geocode the address
+            location = geolocator.geocode(address)
+            
+            if location:
+                latitudes.append(location.latitude)
+                longitudes.append(location.longitude)
+
+            else:
+                latitudes.append(np.nan)
+                longitudes.append(np.nan)
+                print(f"Geolocator could not geocode the address {address}")
+        else:
+            latitudes.append(np.nan)
+            longitudes.append(np.nan)
+
+        # avoid too many requests
+        if (index+1) % 10 == 0:
+            time.sleep(1)
+
+    agency_df["Latitude"] = latitudes
+    agency_df["Longitude"] = longitudes
+
     return agency_df
 
 def sort(employee_df, agency_df):
-    employee_df.sort_values(by=["ID", "Record Year"], inplace=True)
-    agency_df.sort_values(by=["Opening Year", "Agency"], inplace=True)
+    employee_df.sort_values(by=["ID", "Record Year"], ignore_index=True, inplace=True)
+    agency_df.sort_values(by=["Opening Year", "Agency"], ignore_index=True, inplace=True)
 
     return employee_df, agency_df
 
@@ -751,93 +783,11 @@ def preprocess(employee_df, agency_df):
     employee_df = extract_period_start_end_year(employee_df)
     employee_df, agency_df = fill_na(employee_df, agency_df)
     employee_df, agency_df = generate_agency(employee_df, agency_df)
-    employee_df, agency_df = extract_agency(employee_df, agency_df)
+    agency_df = extract_agency(employee_df, agency_df)
     agency_df = locate_agencies(agency_df)
     employee_df, agency_df = sort(employee_df, agency_df)
 
     return employee_df, agency_df
-
-
-
-
-def preprocess_geo(employee_df, agency_df):
-    geolocator = Nominatim(user_agent="city_geocoder")
-    emp_df = employee_df.copy()
-    agency_geo_df = agency_df.copy()
-    
-    def get_lat_lon(city):
-        try:
-            location = geolocator.geocode(city, timeout=15)
-            if location:
-                return location.latitude, location.longitude
-            else:
-                return None, None
-        except Exception as e:
-            print(f"Error geocoding {city}: {e}")
-            return None, None
-
-    def batch_geocode(cities, batch_size=10):
-        batch_latitudes = []
-        batch_longitudes = []
-        
-        for i in range(0, len(cities), batch_size):
-            batch = cities[i:i+batch_size]
-
-            for city in batch:
-                lat, lon = get_lat_lon(city)
-                batch_latitudes.append(lat)
-                batch_longitudes.append(lon)
-            
-            time.sleep(2) 
-        return batch_latitudes, batch_longitudes
-    
-    def update_agency_geo_df():
-        agency_geo_df['Latitude'] = np.nan
-        agency_geo_df['Longitude'] = np.nan
-        
-        unique_cities_employee = emp_df['City'].unique()
-        unique_cities_agency = agency_geo_df['City'].unique()
-        new_cities = set(unique_cities_employee) - set(unique_cities_agency)
-
-        new_rows = []
-
-        for city in new_cities:
-            city_data = emp_df[emp_df['City'] == city]
-            opening_year = city_data['Period Start Year'].min() if not city_data['Period Start Year'].isna().all() else np.nan
-            closing_year = city_data['Period End Year'].max() if not city_data['Period End Year'].isna().all() else np.nan
-            district = city_data['District'].iloc[0] if 'District' in city_data else np.nan
-            country = city_data['Country'].iloc[0] if 'Country' in city_data else np.nan
-            agency = city_data['Agency'].iloc[0] if 'Agency' in city_data else np.nan
-            new_row = {
-                'Opening Year': opening_year,
-                'Closing Year': closing_year,
-                'City': city,
-                'District': district,
-                'Country': country,
-                'Agency': agency,
-                'Latitude': np.nan,
-                'Longitude': np.nan 
-            }
-            new_rows.append(new_row)
-
-        new_rows_df = pd.DataFrame(new_rows)
-        updated_agency_df = pd.concat([agency_geo_df, new_rows_df], ignore_index=True)
-
-        return updated_agency_df
-    
-
-    agency_geo_df = update_agency_geo_df()
-
-    cities_to_geocode = agency_geo_df[agency_geo_df['Latitude'].isna()]['City'].tolist()
-    batch_latitudes, batch_longitudes = batch_geocode(cities_to_geocode)
-
-    agency_geo_df.loc[agency_geo_df['City'].isin(cities_to_geocode), 'Latitude'] = batch_latitudes
-    agency_geo_df.loc[agency_geo_df['City'].isin(cities_to_geocode), 'Longitude'] = batch_longitudes
-    agency_geo_df = agency_geo_df.drop(columns=['Unnamed: 0'], errors='ignore')
-
-    return agency_geo_df
-
-    
 
 # load datasets
 employee_df = pd.read_excel(join("datasets", "employees_raw.xlsx"))
@@ -847,9 +797,5 @@ agency_df = pd.read_excel(join("datasets", "agencies_raw.xlsx"))
 employee_df, agency_df = preprocess(employee_df, agency_df)
 
 # save datasets
-employee_df.to_excel(join("datasets", "employees_preprocessed.xlsx"))
-agency_df.to_excel(join("datasets", "agencies_preprocessed.xlsx"))
-
-
-agency_geo_df = preprocess_geo(employee_df,agency_df)
-agency_geo_df.to_excel(join("datasets", "agencies_geo_preprocessed.xlsx"))
+employee_df.to_excel(join("datasets", "employees_preprocessed.xlsx"), index=False)
+agency_df.to_excel(join("datasets", "agencies_preprocessed.xlsx"), index=False)

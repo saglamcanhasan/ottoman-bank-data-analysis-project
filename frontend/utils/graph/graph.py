@@ -337,13 +337,13 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     return fig
 
 
-def map(df, size_col='Employee Count', text_col='City', title=""):
+def map(df, title, size_col="Average Employee Count", text_col="Label"):
     if df is None:
         return error("server")
     elif isinstance(df, str):
         return error("chart")
 
-    if df.empty or 'Latitude' not in df or 'Longitude' not in df or size_col not in df:
+    if df.empty or "Latitude" not in df or "Longitude" not in df or size_col not in df:
         fig = go.Figure()
 
         fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})

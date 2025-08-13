@@ -31,7 +31,9 @@ def request(figure_id: str, **filter_parameters):
             return response.json().get("error", "API not found")
         
         else:
+            print(f"ERROR <= {response.json()}")
             return None
         
     except Exception as exception:
+        print(f"ERROR <= {str(exception)}")
         return None

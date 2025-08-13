@@ -92,7 +92,8 @@ def error(type: Literal["server", "chart"]):
     fig.update_layout(
         xaxis=dict(visible=False),
         yaxis=dict(visible=False),
-        meta=dict(error=True, type=type)
+        meta=dict(error=True, type=type),
+        margin={"l": 0, "r": 0, "t": 0, "b": 0}
     )
 
     return fig

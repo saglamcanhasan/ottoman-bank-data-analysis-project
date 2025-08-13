@@ -342,7 +342,6 @@ def map(nodes, edges):
     elif isinstance(nodes, str):
         return error("chart")
 
-<<<<<<< HEAD
     fig = px.scatter_geo(
         nodes,
         lat="latitudes",
@@ -390,59 +389,6 @@ def map(nodes, edges):
             opacity=0.7
         ),
         hovertemplate="%{hovertext}<extra></extra>"
-=======
-    if df.empty or 'Latitude' not in df or 'Longitude' not in df or size_col not in df:
-        fig = go.Figure()
-        fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})
-        theme(fig)
-        return fig
-    
-    # Normalize marker sizes, colors
-    size_min, size_max = 18, 45
-    s = df[size_col].fillna(0).values
-    if s.max() == s.min():
-        norm_sizes = np.full_like(s, (size_min + size_max)/2)
-    else:
-        norm_sizes = size_min + (s - s.min()) / (s.max() - s.min()) * (size_max - size_min)
-
-    mask_nonzero = s > 0
-
-    norm_colors = np.zeros_like(s, dtype=float)
-    if mask_nonzero.any():
-        log_s = np.log10(s[mask_nonzero] + 0.1)
-        log_min, log_max = log_s.min(), log_s.max()
-        norm_colors[mask_nonzero] = (log_s - log_min) / (log_max - log_min)
-
-    # use grey for zeros
-    marker_colors = [colors[int(c * (len(colors)-1))] if val > 0 else '#c9bcd4' for c, val in zip(norm_colors, s)]
-    
-    #  one trace Scattermap
-    fig = go.Figure(go.Scattermap(
-        lat=df['Latitude'],
-        lon=df['Longitude'],
-        mode='markers',
-        marker=dict(
-            size=norm_sizes,
-            color=marker_colors,
-            colorscale=colors, 
-            cmin=0,
-            cmax=1,
-            showscale=True,
-            opacity=0.7
-        ),
-        text=df[text_col],
-        hovertemplate=(
-            "%{text}<br>"f"{size_col}: "+"%{customdata}<br>""Lat: %{lat}<br>Lon: %{lon}<extra></extra>"
-        ),
-        customdata=df[size_col]  
-    ))
-
-    fig.update_layout(
-        map = {'style': "carto-voyager", 'center': {'lon': 37, 'lat': 37}, 'zoom': 4},
-        title=title,
-        showlegend=False,
-        margin={'l': 0, 'r': 0, 'b': 0, 't': 0}
->>>>>>> a39c32f3de18bf481898657bc0569c02cb106ed5
     )
     
     theme(fig)

@@ -230,7 +230,7 @@ def sankey(elements: dict, title: str):
 
     theme(fig)
 
-    fig.update_layout(title_text=title, font_size=10)
+    fig.update_layout(title_text=title, font_size=20)
 
     return fig
 

@@ -3,14 +3,7 @@ from services.request import request
 filter_parameters = request("filter-parameters")
 
 if filter_parameters is None:
-    countries = []
-    cities = []
-    districts = []
-    functions = []
-    religions = []
-    ids = []
-    start = 0
-    end = 0
+    raise Exception("Back-end server does not respond. Needed at initialization for filter parameters.")
     
 else:
     countries = filter_parameters["countries"]

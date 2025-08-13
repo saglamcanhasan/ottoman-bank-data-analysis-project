@@ -343,43 +343,54 @@ def map(df, title, size_col="Average Employee Count", text_col="Label"):
     elif isinstance(df, str):
         return error("chart")
 
-    if df.empty or "Latitude" not in df or "Longitude" not in df or size_col not in df:
+    if df.empty or 'Latitude' not in df or 'Longitude' not in df or size_col not in df:
         fig = go.Figure()
-
         fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})
-        
         theme(fig)
-
         return fig
     
-    # Create traces for each city
-    traces = []
-    for _, row in df.iterrows():
-        text_c = row[text_col]
-        lat = row['Latitude']
-        lon = row['Longitude']
-        size_c = row[size_col]
-        color_c = row[size_col]
-        
-        traces.append(go.Scattermap(
-            mode='markers',
-            lon=[lon],
-            lat=[lat],
-            marker=dict(
-                size=size_c, 
-                color=color_c,
-                colorscale=colors, 
-                showscale=True, 
-                opacity=0.7
-            ),
-            text=text_c,  # Display city name on hover
-            hoverinfo='text+lat+lon' # Show text on hover
-        ))
+    # Normalize marker sizes, colors
+    size_min, size_max = 18, 45
+    s = df[size_col].fillna(0).values
+    if s.max() == s.min():
+        norm_sizes = np.full_like(s, (size_min + size_max)/2)
+    else:
+        norm_sizes = size_min + (s - s.min()) / (s.max() - s.min()) * (size_max - size_min)
 
-    fig = go.Figure(data=traces)
+    mask_nonzero = s > 0
+
+    norm_colors = np.zeros_like(s, dtype=float)
+    if mask_nonzero.any():
+        log_s = np.log10(s[mask_nonzero] + 0.1)
+        log_min, log_max = log_s.min(), log_s.max()
+        norm_colors[mask_nonzero] = (log_s - log_min) / (log_max - log_min)
+
+    # use grey for zeros
+    marker_colors = [colors[int(c * (len(colors)-1))] if val > 0 else '#c9bcd4' for c, val in zip(norm_colors, s)]
+    
+    #  one trace Scattermap
+    fig = go.Figure(go.Scattermap(
+        lat=df['Latitude'],
+        lon=df['Longitude'],
+        mode='markers',
+        marker=dict(
+            size=norm_sizes,
+            color=marker_colors,
+            colorscale=colors, 
+            cmin=0,
+            cmax=1,
+            showscale=True,
+            opacity=0.7
+        ),
+        text=df[text_col],
+        hovertemplate=(
+            "%{text}<br>"f"{size_col}: "+"%{customdata}<br>""Lat: %{lat}<br>Lon: %{lon}<extra></extra>"
+        ),
+        customdata=df[size_col]  
+    ))
 
     fig.update_layout(
-        map = {'style': "open-street-map", 'center': {'lon': 37, 'lat': 37}, 'zoom': 4},
+        map = {'style': "carto-voyager", 'center': {'lon': 37, 'lat': 37}, 'zoom': 4},
         title=title,
         showlegend=False,
         margin={'l': 0, 'r': 0, 'b': 0, 't': 0}

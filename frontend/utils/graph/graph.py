@@ -336,53 +336,59 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     theme(fig)  
     return fig
 
-
-def map(df, title, size_col="Average Employee Count", text_col="Label"):
-    if df is None:
+def map(nodes, edges):
+    if nodes is None:
         return error("server")
-    elif isinstance(df, str):
+    elif isinstance(nodes, str):
         return error("chart")
 
-    if df.empty or "Latitude" not in df or "Longitude" not in df or size_col not in df:
-        fig = go.Figure()
+    fig = px.scatter_geo(
+        nodes,
+        lat="latitudes",
+        lon="longitudes",
+        size="sizes",
+        hover_name="hovertexts",
+        projection="natural earth",
+        scope="world"
+    )
 
-        fig.update_layout(map = {'style': "open-street-map", 'center': {'lon': 30, 'lat': 30}, 'zoom': 4})
-        
-        theme(fig)
+    fig.update_geos(
+        showframe=False,
+        showcountries=True,
+        countrycolor="#B08D57",
+        showland=True,
+        landcolor="#DDD0BE",
+        showlakes=True,
+        lakecolor="#3E9BC0",
+        showocean=True,
+        oceancolor="#1D81A9",
+        fitbounds="locations"
+    )
 
-        return fig
-    
-    # Create traces for each city
-    traces = []
-    for _, row in df.iterrows():
-        text_c = row[text_col]
-        lat = row['Latitude']
-        lon = row['Longitude']
-        size_c = row[size_col]
-        color_c = row[size_col]
-        
-        traces.append(go.Scattermap(
-            mode='markers',
-            lon=[lon],
-            lat=[lat],
-            marker=dict(
-                size=size_c, 
-                color=color_c,
-                colorscale=colors, 
-                showscale=True, 
-                opacity=0.7
-            ),
-            text=text_c,  # Display city name on hover
-            hoverinfo='text+lat+lon' # Show text on hover
-        ))
-
-    fig = go.Figure(data=traces)
+    for lat, lon, width in zip(edges["latitudes"], edges["longitudes"], edges["sizes"]):
+        fig.add_trace(go.Scattergeo(
+            lat=lat,
+            lon=lon,
+            mode="lines",
+            line=dict(width=width, color="#7C0A02"),
+            opacity=0.2,
+            showlegend=False
+        )
+    )
 
     fig.update_layout(
-        map = {'style': "open-street-map", 'center': {'lon': 37, 'lat': 37}, 'zoom': 4},
-        title=title,
-        showlegend=False,
-        margin={'l': 0, 'r': 0, 'b': 0, 't': 0}
+        margin={"l": 0, "r": 0, "t": 0, "b": 0},
+        geo=dict(bgcolor="#EFEBD6"),
+        paper_bgcolor="#EFEBD6"
+    )
+
+    fig.update_traces(
+        marker=dict(
+            line=dict(color="#EFEBD6"),
+            color=nodes["colors"],
+            opacity=0.7
+        ),
+        hovertemplate="%{hovertext}<extra></extra>"
     )
     
     theme(fig)

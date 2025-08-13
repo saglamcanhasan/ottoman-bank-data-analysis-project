@@ -1,4 +1,4 @@
-import numpy as np
+import traceback
 import pandas as pd
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -22,4 +22,6 @@ async def respond(request, controller):
     
     # send an error response
     except Exception as exception:
+        print(f"ERROR <= {str(exception)}")
+        traceback.print_exception(exception)
         return JSONResponse(content={"error": str(exception)}, status_code=500)

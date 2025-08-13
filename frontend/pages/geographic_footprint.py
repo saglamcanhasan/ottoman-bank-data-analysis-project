@@ -34,4 +34,4 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("agency-map")
-create_figure_callback(lambda **kwargs: request("geo-footprint", **kwargs), lambda df:map(df, "Agency Geographic Map"), "agency-map", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("geo-footprint", **kwargs), lambda elements: map(elements[0] if elements is not None and type(elements) is not str else elements, elements[1] if elements is not None and type(elements) is not str else None), "agency-map", True, True, True, True, True)

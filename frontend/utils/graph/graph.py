@@ -169,34 +169,34 @@ def pie(df, title):
 
     return fig
 
-def gantt(df, x_start_column, x_end_column, y_column, color_column, xlabel, xstartlabel, xendlabel, ylabel, title="", color_title=""):
+def gantt(df, x_label, y_label, title):
     if df is None:
         return error("server")
     elif isinstance(df, str):
         return error("chart")
     
-    if df.empty:
-        fig = px.timeline()
+    fig = px.timeline(
+        df, 
+        x_start="starts",
+        x_end="ends", 
+        y="tasks",    
+        color="colors",
+        color_discrete_sequence=colors,
+        hover_name="hovertexts",
+        title=title,
+    )
+    
+    theme(fig)
+    
+    fig.update_layout(
+        xaxis_title=x_label,
+        yaxis_title=y_label,
+        showlegend=False
+    )
 
-        theme(fig)
-        
-        return fig
-    
-    fig = px.timeline(df, 
-                      x_start=x_start_column,
-                      x_end=x_end_column, 
-                      y=y_column,    
-                      color=color_column,
-                      color_discrete_sequence=colors,
-                      labels={y_column: ylabel, 
-                              x_start_column: xstartlabel, 
-                              x_end_column: xendlabel, 
-                              color_column: color_title},
-                      title=title)
-    
-    fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
-    
-    theme(fig, "right")
+    fig.update_traces(
+        hovertemplate="%{hovertext}<extra></extra>"
+    )
 
     return fig
 
@@ -239,33 +239,26 @@ def sankey(elements: dict, title: str):
 
     return fig
 
-def table(df, columns_to_display=None, title="Table Title"):
+def table(df, title):
     if df is None:
         return error("server")
     elif isinstance(df, str):
         return error("chart")
-    
-    if df.empty:
-        fig = go.Figure()
 
-        theme(fig)
-
-        return fig 
-
-    if columns_to_display is None:
-        df_filtered = df
-    else:
-        df_filtered = df[columns_to_display]
-
-    # Create the table trace
+    # create the table trace
     table_trace = go.Table(
-        header=dict(values=list(df_filtered.columns),
-                    fill_color="#7C0A02",  # Header background color
-                    align="center",
-                    font=dict(color="white")),
-        cells=dict(values=[df_filtered[col] for col in df_filtered.columns],
-                   fill_color="#EFEBD6",  # Cells background color
-                   align="center")
+        header=dict(values=list(df.columns),
+            fill_color=colors[6],
+            align="center",
+            font=dict(color="#EFEBD6"),
+            line=dict(color=colors[4], width=2)
+        ),
+        cells=dict(
+            values=[df[col] for col in df.columns],
+            fill_color="#EFEBD6",
+            align="center",
+            line=dict(color=colors[4], width=2)
+        )
     )
 
     fig = go.Figure(data=[table_trace])
@@ -324,14 +317,15 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     if hover_cols is None: hover_cols = []
         
     fig = px.scatter(df, 
-                     x=x_col, 
-                     y=y_col, 
-                     title=title,
-                     labels={x_col: x_title, y_col: y_title},
-                     color=df[x_col],
-                     color_continuous_scale=colors,
-                     opacity=0.85,
-                     hover_data=hover_cols)
+        x=x_col, 
+        y=y_col, 
+        title=title,
+        labels={x_col: x_title, y_col: y_title},
+        color=df[x_col],
+        color_continuous_scale=colors,
+        opacity=0.85,
+        hover_data=hover_cols
+    )
 
     fig.update_layout(
         xaxis_title=x_title,
@@ -341,7 +335,7 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     theme(fig)  
     return fig
 
-def map(nodes, edges):
+def geo(nodes, edges):
     if nodes is None:
         return error("server")
     elif isinstance(nodes, str):
@@ -390,14 +384,14 @@ def map(nodes, edges):
             hoverinfo="skip"
         )
     )
+    
+    theme(fig)
 
     fig.update_layout(
         margin={"l": 0, "r": 0, "t": 0, "b": 0},
         geo=dict(bgcolor="#EFEBD6"),
         paper_bgcolor="#EFEBD6"
     )
-    
-    theme(fig)
 
     return fig
 

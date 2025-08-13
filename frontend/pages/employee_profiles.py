@@ -19,11 +19,11 @@ def layout():
 
         section(
             sections[0],
-            "Use the search bar to find an employee by name. The profile card will populate with their key information, including nationality, religion, total career length, and the number of unique agencies they served in, providing an at-a-glance summary.\n\nThis Gantt-style chart maps the selected employee's entire career chronologically. Each bar represents a position held at a specific agency, with its length indicating the duration. Hover over any bar to see detailed information about that specific assignment.",
+            "Use the search bar to find an employee by name. The profile card will populate with their key information, including nationality, religion, total career length, and the number of unique agencies they served in, providing an at-a-glance summary.\n\nThis Gantt-style chart maps the selected employee's entire career chronologically. Each bar represents a position held at a specific agency, with its length indicating the duration. Hover over any bar to see detailed information about that specific assignment. To improve visual clarity, we have limited the chart to display only 100 periods.",
             {
                 "profile-card": {
                     "figure": {},
-                    "filter": filter("profile-card", False, False, False, True, False)
+                    "filter": filter("profile-card", True, True, True, True, True)
                 },
                 "career-timeline": {
                     "figure": {}
@@ -32,5 +32,5 @@ def layout():
         )
     ]
     
-create_figure_callback(lambda **kwargs: request("employee-profiles", **kwargs), lambda df: table(df, None, "Employee Profile Card"), "profile-card", False, False, False, True, False, filter_id="profile-card")
-create_figure_callback(lambda **kwargs: request("career-timeline", **kwargs), lambda df: gantt(df, "Start",  "Finish", "Task" ,"Task",  "Total Years", "Start Year", "End Year","Countries Employee/s Worked in", "Employee Career Timeline by Country/Agency", "Country"), "career-timeline", False, False, False, True, False, filter_id="profile-card")
+create_figure_callback(lambda **kwargs: request("employee-profiles", **kwargs), lambda df: table(df, "Employee Profile Card"), "profile-card", True, True, True, True, True, filter_id="profile-card")
+create_figure_callback(lambda **kwargs: request("career-timeline", **kwargs), lambda df: gantt(df, "Years", "Agencies", "Employee Career Timeline by Agency"), "career-timeline", True, True, True, True, True, filter_id="profile-card")

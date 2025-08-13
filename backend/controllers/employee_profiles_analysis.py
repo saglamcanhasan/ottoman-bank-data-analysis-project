@@ -1,83 +1,66 @@
 import pandas as pd
+from utils.filter import filter
 from services.data_loader import employee_df
 
-def generate_employee_profile_df(selected_ids=None):
-    if selected_ids:
-        employee_data = employee_df[employee_df['ID'].isin(selected_ids)]
-    else:
-        employee_data = employee_df
-    return employee_data
+async def career_timeline(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False, top: int=100):
+    # copy dataset
+    df = employee_df.copy()
 
-async def career_timeline(selected_ids=None):
+    # extract start and end
+    time_period_start_year, time_period_end_year = selected_time_period
+
+    # filter dataset
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
+
+    df["Start"] = df["Period Start Year"].astype(int).clip(lower=time_period_start_year)
+    df["End"] = df["Period End Year"].astype(int).clip(upper=time_period_end_year)
+
+    gantt_df = pd.DataFrame(df.loc[:, ["ID", "Start", "End"]], columns=["ID", "Start", "End"]).rename(columns={"Start": "starts", "End": "ends", "ID": "tasks"})
     
-    df = generate_employee_profile_df(selected_ids)
-    
-    if df.empty:
-        return pd.DataFrame()
+    mask = df["Start"] == df["End"]
+    gantt_df.loc[mask, "ends"] = gantt_df.loc[mask, "ends"] + 1
+    gantt_df["starts"] = pd.to_datetime(gantt_df["starts"], format="%Y")
+    gantt_df["ends"] = pd.to_datetime(gantt_df["ends"], format="%Y")
 
-    gantt_data = []
-    
-    # Iterate through each row to create Gantt data (employee timeline by country)
-    for _, row in df.iterrows():
-        start_year = int(row['Period Start Year']) if pd.notna(row['Period Start Year']) else 0
-        finish_year = int(row['Period End Year']) if pd.notna(row['Period End Year']) else 0
-        
-        if start_year == 0 and finish_year == 0:
-            continue
+    gantt_df["hovertexts"] = (
+        "ID: " + df["ID"].astype(str) + "<br>" +
+        "<br>Agency: " + df["Agency"].astype(str) +
+        "<br>Function: " + df["Function"].astype(str) +
+        "<br>Religion: " + df["Religion"].astype(str) +
+        "<br>Period: " + df["Start"].astype(str) + " - " + df["End"].astype(str)
+    )
 
-        if start_year == 0:
-            start_year = finish_year - 1
+    gantt_df["colors"] = df["ID"]
 
-        if finish_year == 0 or finish_year == start_year:
-            finish_year = start_year + 1
-            
-        gantt_data.append({
-            'Task': f"{row['Country']}",  # Country as Task
-            'Start': start_year,
-            'Finish': finish_year,
-            'Employee ID': row['ID']
-        })
+    gantt_data = gantt_df[:top].to_dict("list")
 
-    df_g = pd.DataFrame(gantt_data)
-    df_g['Start'] = pd.to_datetime(df_g['Start'], format='%Y')  # Convert to datetime 
-    df_g['Finish'] = pd.to_datetime(df_g['Finish'], format='%Y') 
+    return gantt_data
 
-    return df_g
+async def employee_profiles(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
+    # copy dataset
+    df = employee_df.copy()
 
+    # extract start and end
+    time_period_start_year, time_period_end_year = selected_time_period
 
-
-
-async def employee_profiles(selected_ids=None):
-    
-    df = generate_employee_profile_df(selected_ids)
-    
-    if df.empty:
-        return pd.DataFrame()
+    # filter dataset
+    df = filter(df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
     
     profiles = []
-
-    for employee_id in df['ID'].unique():
-        employee_data = df[df['ID'] == employee_id]
+    for id, group in df.groupby("ID"):
+        agencies = group["Agency"].unique()
+        functions = group["Function"].unique()
+        religions = group["Religion"].unique()
+        active_period = f"{group['Career Start Year'].iloc[0]} - {group['Career End Year'].iloc[0]}"
         
-        countries_worked_in = set()
-        functions_worked_in = set() 
-        unique_agencies = set() 
-
-        for _, row in employee_data.iterrows():
-            countries_worked_in.add(row['Country'])
-            functions_worked_in.add(row['Function'])
-            unique_agencies.add(row['Agency'])
-        
-        # Prepare the profile data
-        profile = {
-            'Employee ID': employee_id,
-            'Total Career Length': row['Career End Year'] - row['Career Start Year'] + 1, 
-            'Countries Worked In': ', '.join(countries_worked_in), 
-            'Functions Worked In': ', '.join(functions_worked_in),  
-            'Unique Agencies': ' / '.join(unique_agencies)  
-        }
-
-        profiles.append(profile)
+        # prepare the profile data
+        profiles.append({
+            "ID": id,
+            "Agency": ';\n'.join(agencies),
+            "Active Period": active_period,
+            "Function": ',\n'.join(functions),
+            "Religion": ',\n'.join(religions),
+        })
     
     profile_df = pd.DataFrame(profiles)
     

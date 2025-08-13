@@ -365,23 +365,6 @@ def map(nodes, edges):
         fitbounds="locations"
     )
 
-    for lat, lon, width in zip(edges["latitudes"], edges["longitudes"], edges["sizes"]):
-        fig.add_trace(go.Scattergeo(
-            lat=lat,
-            lon=lon,
-            mode="lines",
-            line=dict(width=width, color="#7C0A02"),
-            opacity=0.2,
-            showlegend=False
-        )
-    )
-
-    fig.update_layout(
-        margin={"l": 0, "r": 0, "t": 0, "b": 0},
-        geo=dict(bgcolor="#EFEBD6"),
-        paper_bgcolor="#EFEBD6"
-    )
-
     fig.update_traces(
         marker=dict(
             line=dict(color="#EFEBD6"),
@@ -389,6 +372,24 @@ def map(nodes, edges):
             opacity=0.7
         ),
         hovertemplate="%{hovertext}<extra></extra>"
+    )
+
+    for lat, lon, width in zip(edges["latitudes"], edges["longitudes"], edges["sizes"]):
+        fig.add_trace(go.Scattergeo(
+            lat=lat,
+            lon=lon,
+            mode="lines",
+            line=dict(width=width, color="#7C0A02"),
+            opacity=0.2,
+            showlegend=False,
+            hoverinfo="skip"
+        )
+    )
+
+    fig.update_layout(
+        margin={"l": 0, "r": 0, "t": 0, "b": 0},
+        geo=dict(bgcolor="#EFEBD6"),
+        paper_bgcolor="#EFEBD6"
     )
     
     theme(fig)

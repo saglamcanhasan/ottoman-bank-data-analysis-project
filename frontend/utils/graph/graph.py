@@ -72,6 +72,7 @@ def theme(fig, legend_location="top"):
         legend=legend,
         paper_bgcolor="#EFEBD6",
         plot_bgcolor="#EFEBD6",
+        margin={"l": 25, "r": 25, "t": 100, "b": 25}
     )
 
 def error(type: Literal["server", "chart"]):
@@ -230,7 +231,11 @@ def sankey(elements: dict, title: str):
 
     theme(fig)
 
-    fig.update_layout(title_text=title, font_size=20)
+    fig.update_layout(
+        title_text=title,
+        font_size=20,
+        margin={"l": 10, "r": 10, "t": 100, "b": 10}
+    )
 
     return fig
 

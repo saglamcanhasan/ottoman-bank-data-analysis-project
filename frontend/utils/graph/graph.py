@@ -279,27 +279,32 @@ def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True)
 
         return fig
     
-    fig = px.box(df, 
+    fig = px.box(
+        df, 
         x=x_col,
         y=y_col, 
         title=title,
         color=color_col,
         boxmode="group",
-        color_discrete_sequence=colors  
+        color_discrete_sequence=colors
     )
-
-
-    fig.update_layout(
-        xaxis_title=x_title,
-        yaxis_title=y_title,
-        showlegend=show_legend
+    
+    fig.update_traces(
+        offsetgroup=None,
+        width=0.5
     )
     
     theme(fig)
 
+    fig.update_layout(
+        xaxis_title=x_title,
+        yaxis_title=y_title,
+        showlegend=False
+    )
+
     return fig
 
-def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
+def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None, log_y=False):
     if df is None or isinstance(df, str):
         return df
     
@@ -323,12 +328,15 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
         hover_data=hover_cols
     )
 
+    theme(fig)
+
     fig.update_layout(
         xaxis_title=x_title,
         yaxis_title=y_title,
     )
-
-    theme(fig)
+    
+    if log_y:
+        fig.update_yaxes(type="log")
 
     return fig
 

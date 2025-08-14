@@ -58,48 +58,19 @@ def vertical_separator():
 def horizontal_separator():
     return html.Div(className="content-horizontal-separator")
 
-def section(title: str, description: str, figures: dict=dict(), is_cyto: bool=False):
+def section(title: str, description: str, graphs: dict=dict()):
     figure_rows = list()
-    for figure_id in figures:
+    for figure_id in graphs:
         # extract figure info
-        figure_dict = figures[figure_id]
-
-        figure = figure_dict["figure"]
-        filter = figure_dict.get("filter", None)
+        graph_dict = graphs[figure_id]
+        filter = graph_dict.get("filter", None)
 
         # check figure type
-        if is_cyto:
-            graph = cyto.Cytoscape(
-                id=figure_id,
-                layout={"name": "concentric"},
-                style={"width": "100%", "height": "100%"},
-                elements=figure,
-                stylesheet=[
-                    {"selector": "node",
-                     "style": {
-                        "label": "data(label)",
-                        "width": "data(size)",
-                        "height": "data(size)",
-                        "background-color": "data(color)",
-                        "font-size": "8px",
-                        "font-family": "Cormorant SC, Georgia, serif",
-                        "font-weight": "600" 
-                    }},
-                    {"selector": "edge",
-                     "style": {
-                        "curve-style": "bezier",
-                        "line-color": "#7C0A02",
-                        "opacity": 0.2,
-                        "width": "data(size)"
-                    }},                   
-                ],
-            )
-
-        else:
-            graph = dcc.Graph(figure=figure, id=figure_id, className="graph", config={'responsive': True})
-
         graph_component = dcc.Loading(
-            graph,
+            html.Div(
+                id=figure_id,
+                className="figure-wrapper"
+            ),
             type="dot",
             color="#00487A",
             id="loader"

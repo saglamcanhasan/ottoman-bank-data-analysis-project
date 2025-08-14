@@ -1,6 +1,6 @@
 import dash
-from utils.graph.graph import bar
 from services.request import request
+from utils.graph.graph import bar, graph
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
@@ -24,12 +24,10 @@ def layout():
             "This graph displays the employee social network. Each node represents an employee, with its size proportional to the sum of the durations of all their connections. Each edge represents one of the top 1,000 longest overlapping work periods between two employees after the current filters are applied, with edge thickness proportional to the duration of that connection. This focus on the strongest professional ties helps highlight central connectors and clusters in the network. Adjusting the filters may reveal different relationships, shift the relative importance of employees, or bring other links into view.",
             {
                 "coworker-network": {
-                    "figure":{},
                     "filter": filter("coworker-network", True, True, True, True, True)
 
                 }
-            },
-            is_cyto = True
+            }
         ),
 
         horizontal_separator(),
@@ -39,7 +37,6 @@ def layout():
             "This table ranks employees by their 'degree centrality' - the number of unique colleagues they worked with during their tenure. Individuals at the top of this list were the most central social connectors in the bank's network.",
             {
                 "employee-connection": {
-                    "figure": {},
                     "filter": filter("employee-connection", True, True, True, True, True)
                 }
             }
@@ -52,7 +49,6 @@ def layout():
             "This bar chart showcases the top 10 employee pairs who have spent the longest time working together at the same agency. By analyzing their overlap years, we identify the most enduring professional partnerships within the Ottoman Bank.",
             {
                 "partner-employees": {
-                    "figure": {},
                     "filter": filter("partner-employees", True, True, True, True, True)
                 }
             }
@@ -62,10 +58,10 @@ def layout():
     
 # callbacks
 create_agency_dropdown_callback("coworker-network")
-create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 0), lambda elements: elements if elements is not None and type(elements) is not str else {}, "coworker-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 0), lambda elements: graph(elements), "coworker-network", True, True, True, True, True)
 
 create_agency_dropdown_callback("employee-connection")
-create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 1), lambda df: bar(df, "Employee", "Connections", "Degree Centrality", -1, "h"), "employee-connection", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 1), lambda df: graph(bar(df, "Employee", "Connections", "Degree Centrality", -1, "h")), "employee-connection", True, True, True, True, True)
 
 create_agency_dropdown_callback("partner-employees")
-create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 2), lambda df: bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h"), "partner-employees", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: (lambda data, index: data[index] if isinstance(data, list) else data)(request("coworker-network", **kwargs), 2), lambda df: graph(bar(df, "Co-Workers", "Years", "Longest Professional Partnerships", -1, "h")), "partner-employees", True, True, True, True, True)

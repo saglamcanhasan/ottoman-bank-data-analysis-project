@@ -1,8 +1,9 @@
 import numpy as np
-import pandas as pd
 from typing import Literal
 import plotly.express as px
+import dash_cytoscape as cyto
 import plotly.graph_objects as go
+from dash import html, dcc, dash_table
 from plotly.subplots import make_subplots
 from plotly.colors import sample_colorscale
 
@@ -99,10 +100,8 @@ def error(type: Literal["server", "chart"]):
     return fig
 
 def plot(df, x_label, y_label, title, color_index=0):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     fig = px.line(df, x_label, y_label, title=title)
 
@@ -117,10 +116,8 @@ def plot(df, x_label, y_label, title, color_index=0):
     return fig
 
 def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="", y_title=""):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     if df.empty:
         fig = px.bar()
@@ -155,10 +152,8 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="",
     return fig
 
 def pie(df, title):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     names = df.columns.tolist()
     values = df.iloc[0].values.tolist()
@@ -171,10 +166,8 @@ def pie(df, title):
     return fig
 
 def gantt(df, x_label, y_label, title):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     fig = px.timeline(
         df, 
@@ -202,10 +195,8 @@ def gantt(df, x_label, y_label, title):
     return fig
 
 def sankey(elements: dict, title: str):
-    if elements is None:
-        return error("server")
-    elif isinstance(elements, str):
-        return error("chart")
+    if elements is None or isinstance(elements, str):
+        return elements
     
     fig = go.Figure(
         data=[go.Sankey(
@@ -241,10 +232,8 @@ def sankey(elements: dict, title: str):
     return fig
 
 def table(df, title):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
 
     # create the table trace
     table_trace = go.Table(
@@ -270,10 +259,8 @@ def table(df, title):
     return fig
 
 def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     if df.empty:
         fig = px.box()
@@ -303,10 +290,8 @@ def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True)
     return fig
 
 def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
-    if df is None:
-        return error("server")
-    elif isinstance(df, str):
-        return error("chart")
+    if df is None or isinstance(df, str):
+        return df
     
     if df.empty:
         fig = px.scatter()
@@ -337,10 +322,8 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
     return fig
 
 def geo(nodes, edges):
-    if nodes is None:
-        return error("server")
-    elif isinstance(nodes, str):
-        return error("chart")
+    if nodes is None or isinstance(nodes, str):
+        return nodes
 
     fig = px.scatter_geo(
         nodes,
@@ -397,8 +380,8 @@ def geo(nodes, edges):
     return fig
 
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
-    if all(figure.layout.meta and figure.layout.meta.get("error", False) for figure in figures_y_left + figures_y_right):
-        return error((figures_y_left + figures_y_right)[0].layout.meta["type"])
+    if all(figure is None or isinstance(figure, str) for figure in figures_y_left + figures_y_right):
+        return error((figures_y_left + figures_y_right)[0])
     
     is_there_second_y_label = len(figures_y_right) != 0
     
@@ -425,3 +408,55 @@ def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, titl
     supfig.update_traces(showlegend=True)
 
     return supfig
+
+def graph(figure):
+    if figure is None:
+        return dcc.Graph(
+            figure=error("server"),
+            className="graph",
+            config={'responsive': True}
+        )
+
+    elif isinstance(figure, str):
+        return dcc.Graph(
+            figure=error("chart"),
+            className="graph",
+            config={'responsive': True}
+        )
+
+    elif isinstance(figure, go.Figure):
+        return dcc.Graph(
+            figure=figure,
+            className="graph",
+            config={'responsive': True}
+        )
+    
+    elif isinstance(figure, dash_table.DataTable):
+        return figure
+    
+    elif isinstance(figure, list):
+        return cyto.Cytoscape(
+            className="graph",
+            layout={"name": "concentric"},
+            style={"width": "100%", "height": "100%"},
+            elements=figure,
+            stylesheet=[
+                {"selector": "node",
+                    "style": {
+                    "label": "data(label)",
+                    "width": "data(size)",
+                    "height": "data(size)",
+                    "background-color": "data(color)",
+                    "font-size": "8px",
+                    "font-family": "Cormorant SC, Georgia, serif",
+                    "font-weight": "600" 
+                }},
+                {"selector": "edge",
+                    "style": {
+                    "curve-style": "bezier",
+                    "line-color": "#7C0A02",
+                    "opacity": 0.2,
+                    "width": "data(size)"
+                }},                   
+            ],
+        )

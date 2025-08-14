@@ -1,6 +1,6 @@
 from dash import Input, Output, callback
 
-def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, is_cyto=False, filter_id: str=""):
+def create_figure_callback(generate_df, generate_figure, figure_id: str, agency: bool, grouped_function: bool, religion: bool, id: bool, time_period: bool, filter_id: str=""):
     # get figure id
     if len(filter_id) == 0:
         filter_id = figure_id
@@ -35,7 +35,7 @@ def create_figure_callback(generate_df, generate_figure, figure_id: str, agency:
         arg_names.append("selected_time_period")
         
     @callback(
-        Output(figure_id, "figure" if not is_cyto else "elements"),
+        Output(figure_id, "children"),
         *inputs
     )
     def figure_callback(*args):

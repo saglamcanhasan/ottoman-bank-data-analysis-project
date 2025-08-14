@@ -1,6 +1,6 @@
 import dash
 from services.request import request
-from utils.graph.graph import sankey
+from utils.graph.graph import sankey, graph
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
@@ -23,11 +23,9 @@ def layout():
             "This directed graph visualizes the movement of employees between agencies. Each node represents an agency, and the thickness of the connecting lines indicates the volume of transfers. This map reveals the central 'hubs' that processed the most employee movement.",
             {
                 "transfer-network": {
-                    "figure": {},
                     "filter": filter("transfer-network", True, True, True, True, True)
                 }
-            },
-            is_cyto=True
+            }
         ),
 
         horizontal_separator(),
@@ -37,7 +35,6 @@ def layout():
             "This Sankey diagram provides an alternative and intuitive view of employee transfers. The width of each flow is directly proportional to the number of employees moving from a source agency (left) to a target agency (right), making it easy to quantify the most significant transfer routes.",
             {
                 "transfer-flow": {
-                    "figure": {},
                     "filter": filter("transfer-flow", True, True, True, True, True)
                 }
             }
@@ -46,7 +43,7 @@ def layout():
 
 # callbacks
 create_agency_dropdown_callback("transfer-network")
-create_figure_callback(lambda **kwargs: request("employee-transfers", **kwargs), lambda elements: elements if elements is not None and type(elements) is not str else {}, "transfer-network", True, True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-transfers", **kwargs), lambda elements: graph(elements), "transfer-network", True, True, True, True, True)
 
 create_agency_dropdown_callback("transfer-flow")
-create_figure_callback(lambda **kwargs: request("employee-flow", **kwargs), lambda elements: sankey(elements, "Employee Flow Between Agencies"), "transfer-flow", True, True, True, True, True)
+create_figure_callback(lambda **kwargs: request("employee-flow", **kwargs), lambda elements: graph(sankey(elements, "Employee Flow Between Agencies")), "transfer-flow", True, True, True, True, True)

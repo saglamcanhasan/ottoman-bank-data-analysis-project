@@ -1,6 +1,6 @@
 import dash
 from services.request import request
-from utils.graph.graph import bar, box, scatter
+from utils.graph.graph import bar, box, scatter, graph
 from utils.callbacks.figure_callbacks import create_figure_callback
 from utils.callbacks.filter_callbacks import create_agency_dropdown_callback
 from widgets.content import introduction, horizontal_separator, section, filter, table_of_contents
@@ -23,7 +23,6 @@ def layout():
             "This bar chart ranks agencies by their total number of employees, making it easy to distinguish major commercial hubs from smaller regional outposts. Use this to quickly identify the most significant branches in the network.",
             {
                 "top-agencies": {
-                    "figure": {},
                     "filter": filter("top-agencies", True, True, True, False, True)
                 }
             }
@@ -36,7 +35,6 @@ def layout():
             "This chart visualizes employee loyalty at the local level by showing the average number of years employees stayed at each agency. Branches with higher tenure may indicate greater stability or more favorable working conditions.",
             {
                 "employee-tenure": {
-                    "figure": {},
                     "filter": filter("employee-tenure", True, True, True, False, True)
                 }
             }
@@ -49,7 +47,6 @@ def layout():
             "This scatter plot explores the relationship between the number of employees at an agency (size) and how long they typically stayed (tenure). Look for patterns or outliers to understand if larger, central offices had different retention profiles than smaller, regional ones.",
             {
                 "size-vs-tenure": {
-                    "figure": {},
                     "filter": filter("size-vs-tenure", True, True, True, False, True)
                 }
             }
@@ -57,9 +54,9 @@ def layout():
     ]
   
 # callbacks
-create_figure_callback(lambda **kwargs: request("top-agencies", **kwargs), lambda df: bar(df, 'City','Unique Employee Count', "Top Agencies by Employee Count", -1, "h", "Number of Employees", "Agencies"), "top-agencies", True, True, True, False, True, False, filter_id="top-agencies")
+create_figure_callback(lambda **kwargs: request("top-agencies", **kwargs), lambda df: graph(bar(df, 'City','Unique Employee Count', "Top Agencies by Employee Count", -1, "h", "Number of Employees", "Agencies")), "top-agencies", True, True, True, False, True, filter_id="top-agencies")
 
 create_agency_dropdown_callback("employee-tenure")
-create_figure_callback(lambda **kwargs: request("employee-tenure", **kwargs), lambda df: box(df, 'City', 'Tenure','City',"Average Employee Tenure by Agency", "Agencies","Tenure" , False), "employee-tenure", True, True, True, False, True, False, filter_id="employee-tenure")
+create_figure_callback(lambda **kwargs: request("employee-tenure", **kwargs), lambda df: graph(box(df, 'City', 'Tenure','City',"Average Employee Tenure by Agency", "Agencies","Tenure" , False)), "employee-tenure", True, True, True, False, True, filter_id="employee-tenure")
 
-create_figure_callback(lambda **kwargs: request("size-vs-tenure", **kwargs), lambda df: scatter(df,  'Avg Tenure', 'Unique Employee Count', "Agency Size vs. Employee Tenure",  'Average Tenure','Employee Count of Agency', ['City']), "size-vs-tenure", True, True, True, False, True, False, filter_id="size-vs-tenure")
+create_figure_callback(lambda **kwargs: request("size-vs-tenure", **kwargs), lambda df: graph(scatter(df,  'Avg Tenure', 'Unique Employee Count', "Agency Size vs. Employee Tenure",  'Average Tenure','Employee Count of Agency', ['City'])), "size-vs-tenure", True, True, True, False, True, filter_id="size-vs-tenure")

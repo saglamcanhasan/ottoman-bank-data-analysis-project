@@ -278,13 +278,13 @@ def box(df, x_col, y_col, color_col, title, x_title, y_title,  show_legend=True)
         return fig
     
     fig = px.box(df, 
-                 x= x_col,
-                 y= y_col, 
-                 title= title,
-                 color= color_col,
-                 boxmode='group',
-                 color_discrete_sequence=colors  
-                )
+        x=x_col,
+        y=y_col, 
+        title=title,
+        color=color_col,
+        boxmode="group",
+        color_discrete_sequence=colors  
+    )
 
 
     fig.update_layout(

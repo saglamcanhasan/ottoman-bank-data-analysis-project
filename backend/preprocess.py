@@ -724,8 +724,14 @@ def extract_agency(employee_df, agency_df):
 
     mask = agency_df["Opening Year"].isna() & agency_df["Opening Year Filler"].notna()
     agency_df.loc[mask, "Opening Year"] = agency_df.loc[mask, "Opening Year"].fillna(agency_df.loc[mask, "Opening Year Filler"].astype(str)).astype(float)
+    mask = agency_df["Opening Year"].notna() & agency_df["Opening Year Filler"].notna()
+    agency_df.loc[mask, "Opening Year"] = agency_df.loc[mask, ["Opening Year", "Opening Year Filler"]].min(axis=1)
+    
     mask = agency_df["Closing Year"].isna() & agency_df["Closing Year Filler"].notna()
     agency_df.loc[mask, "Closing Year"] = agency_df.loc[mask, "Closing Year"].fillna(agency_df.loc[mask, "Closing Year Filler"].astype(str)).astype(float)
+    mask = agency_df["Closing Year"].notna() & agency_df["Closing Year Filler"].notna()
+    agency_df.loc[mask, "Closing Year"] = agency_df.loc[mask, ["Closing Year", "Closing Year Filler"]].max(axis=1)
+    
     agency_df.drop(columns=["Opening Year Filler", "Closing Year Filler"], inplace=True)
     
     return agency_df

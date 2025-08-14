@@ -12,9 +12,8 @@ async def geo_footprint(selected_countries, selected_cities, selected_districts,
     time_period_start_year, time_period_end_year = selected_time_period
     
     # filter unknown locations
-    employees_df = employees_df[~((employees_df["District"] == "Unknown") & (employees_df["City"] == "Unknown") & (employees_df["Country"] == "Unknown"))]
-    agencies_df = agencies_df[~((agencies_df["District"] == "Unknown") & (agencies_df["City"] == "Unknown") & (agencies_df["Country"] == "Unknown"))]
     agencies_df = agencies_df[(agencies_df["Latitude"].notna()) & (agencies_df["Longitude"].notna())]
+    employees_df = employees_df[employees_df["Agency"].isin(agencies_df["Agency"])]
 
     # filter
     employees_df = filter(employees_df, True, selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, time_period_start_year, time_period_end_year)
@@ -53,7 +52,7 @@ async def geo_footprint(selected_countries, selected_cities, selected_districts,
     # calculate colors and sizes
     min_employees, max_employees = agencies_df["Average Employee Count"].min(), agencies_df["Average Employee Count"].max()
     employees_range = max_employees - min_employees if max_employees != min_employees else 1
-    normalized_weights = (agencies_df["Average Employee Count"] - min_employees) / employees_range
+    normalized_weights = (agencies_df["Average Employee Count"] - min_employees)/employees_range
     colors = sample_colorscale([[0, "#00587A"], [0.025, "#00487A"], [0.05, "#B08D57"], [0.1, "#7C0A02"],[0.5, "#300000"], [1, "#200000"]], normalized_weights.tolist())
     sizes = 10 + normalized_weights*40
 
@@ -100,7 +99,7 @@ async def geo_footprint(selected_countries, selected_cities, selected_districts,
     # calculate sizes for edges
     min_transfers, max_transfers = transfers_df["Total Transfers"].min(), transfers_df["Total Transfers"].max()
     transfers_range = max_transfers - min_transfers if max_transfers != min_transfers else 1
-    sizes = 1 + ((transfers_df["Total Transfers"] - min_transfers) / transfers_range) * 4
+    sizes = 1 + ((transfers_df["Total Transfers"] - min_transfers)/transfers_range)*4
 
     # build edges dictionary
     edges = {

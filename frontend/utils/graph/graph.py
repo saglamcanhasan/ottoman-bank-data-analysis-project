@@ -77,14 +77,14 @@ def theme(fig, legend_location="top"):
     )
 
 def error(type: Literal["server", "chart"]):
-    text = "We couldn’t display this chart.<br>Please try again later on." if type == "server" else "This chart is not yet available"
+    text = "We couldn’t display this chart.<br>Please try again later on." if type == "server" else "This chart is not yet available."
 
     fig = go.Figure()
 
     theme(fig)
 
     fig.add_annotation(
-        text=f"<b>{text}.</b>",
+        text=f"<b>{text}</b>",
         x=0.5, y=0.5,
         xref="paper", yref="paper",
         showarrow=False,

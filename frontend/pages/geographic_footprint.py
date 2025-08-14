@@ -20,7 +20,7 @@ def layout():
 
         section(
             sections[0],
-            "This map plots the location of every bank agency. Hover over a marker to see the agency's name and details. The size of each marker corresponds to the number of employees, making it easy to identify major operational centers. Use the timeline slider below to filter the agencies that were active in any specific year.",
+            "This map plots the location of every bank agency. Hover over a marker to see the agency's name and details. The size of each marker corresponds to the average number of employees, while the color ranging from blue to gold to red also reflects this value on an increasing scale, making it easy to spot major operational centers. The connecting lines represent the total number of employee transfers between agencies, with thicker lines indicating higher transfer volumes.",
             {
                 "agency-map": {
                     "filter": filter("agency-map", True, True, True, True, True)

@@ -34,7 +34,7 @@ def layout():
 
         section(
             sections[1],
-            "This table ranks employees by their 'degree centrality' - the number of unique colleagues they worked with during their tenure. Individuals at the top of this list were the most central social connectors in the bank's network.",
+            "This table ranks employees by their 'degree centrality' - the number of unique colleagues they worked with during their tenure - and highlights the top 10 most central individuals. Individuals at the top of the list were the key social connectors within the bank's network.",
             {
                 "employee-connection": {
                     "filter": filter("employee-connection", True, True, True, True, True)

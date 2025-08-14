@@ -12,7 +12,7 @@ sections = ["Total Employees", "Number of Agencies", "Employee Turnover"]
 def layout():
     return [introduction(
             "Historical Overview",
-            "Trace the life cycle of the Ottoman Bank from its founding years to its later stages. This section features core institutional metrics that reveal periods of growth, consolidation, and workforce stability.",
+            "Trace the life cycle of the Ottoman Bank from its founding years to its later stages. This section presents core institutional metrics that capture periods of growth, decline, and stability in its workforce and operations.",
             table_of_contents(sections)
         ),
 

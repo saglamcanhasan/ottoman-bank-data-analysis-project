@@ -20,7 +20,7 @@ def layout():
 
         section(
             sections[0],
-            "This directed graph visualizes the movement of employees between agencies. Each node represents an agency, and the thickness of the connecting lines indicates the volume of transfers. This map reveals the central 'hubs' that processed the most employee movement.",
+            "This undirected graph visualizes the movement of employees between agencies. Each node represents an agency, and the thickness of the connecting lines indicates the volume of transfers. This map reveals the central 'hubs' that processed the most employee movement.",
             {
                 "transfer-network": {
                     "filter": filter("transfer-network", True, True, True, True, True)
@@ -32,7 +32,7 @@ def layout():
 
         section(
             sections[1],
-            "This Sankey diagram provides an alternative and intuitive view of employee transfers. The width of each flow is directly proportional to the number of employees moving from a source agency (left) to a target agency (right), making it easy to quantify the most significant transfer routes.",
+            "This Sankey diagram provides an alternative and intuitive view of employee transfers, elaborating on the transfer network above by showing them in a directed way - distinguishing between incoming and outgoing employees. with the bar color ranging from blue to gold to red indicating this value on an increasing scale. The width of each flow is directly proportional to the number of employees moving from a source agency to a target agency, making it easy to identify the most significant transfer routes.",
             {
                 "transfer-flow": {
                     "filter": filter("transfer-flow", True, True, True, True, True)

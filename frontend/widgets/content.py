@@ -1,5 +1,4 @@
 from dash import html, dcc
-import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
 from services.filter_parameters import countries, functions, religions, ids, start, end
 
@@ -15,17 +14,26 @@ def introduction(title: str, description: str, right_widget=list()):
     )
 
 def content(title: str, description: str):
-    return dbc.Row([
-        dbc.Col([
+    elements = []
+
+    if title:
+        elements.append(
             html.Header(
                 title,
                 className="introduction-title"
-            ),
+            )
+        )
 
-            dcc.Markdown(
-                description,
-                className="content-body"
-            )],
+    elements.append(
+        dcc.Markdown(
+            description,
+            className="content-body"
+        )
+    )
+
+    return dbc.Row([
+        dbc.Col(
+            elements,
             className="container"
         )],
         className="container"

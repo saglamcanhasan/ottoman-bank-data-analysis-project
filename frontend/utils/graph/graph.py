@@ -247,13 +247,13 @@ def table(df, title):
             fill_color=colors[6],
             align="center",
             font=dict(color="#EFEBD6"),
-            line=dict(color=colors[4], width=2)
+            line=dict(color="#EFEBD6", width=1)
         ),
         cells=dict(
             values=[df[col] for col in df.columns],
-            fill_color=[["#EFEBD6", "#DBD7BB"]*(len(df)//2 + 1)],
+            fill_color=[["#E9E4CB", "#DAD5B9"]*(len(df)//2 + 1)],
             align="center",
-            line=dict(color=colors[4], width=2)
+            line=dict(color="#EFEBD6", width=1)
         )
     )
 

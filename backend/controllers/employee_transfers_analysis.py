@@ -56,8 +56,8 @@ async def employee_transfers(selected_countries, selected_cities, selected_distr
             "data": {
                 "id": agency,
                 "label": f"{agency} - {int(agencies_df.loc[agency, 'Incoming Transfers'])} in, {int(agencies_df.loc[agency, 'Outgoing Transfers'])} out",
-                "weight": agencies_df.loc[agency, "Total Transfers"],
-                "size": 10 + normalized_weights.iloc[index]*40,
+                "weight": int(agencies_df.loc[agency, "Total Transfers"]),
+                "size": 10 + float(normalized_weights.iloc[index])*40,
                 "color": colors[index]
             }
         })
@@ -69,8 +69,8 @@ async def employee_transfers(selected_countries, selected_cities, selected_distr
             "data": {
                 "source": row["Source"],
                 "target": row["Target"],
-                "weight": row["Count"],
-                "size": 1 + normalized_weights[index]*4,
+                "weight": int(row["Count"]),
+                "size": 1 + float(normalized_weights[index])*4,
             }
         })
 

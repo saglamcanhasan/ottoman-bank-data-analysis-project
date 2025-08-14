@@ -3,7 +3,7 @@ from utils.filter import filter
 from plotly.colors import sample_colorscale
 from services.data_loader import agency_df, employee_df
 
-async def geo_footprint(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=True):
+async def geo_footprint(selected_countries, selected_cities, selected_districts, selected_functions, selected_religions, selected_ids, selected_time_period: list = [1855, 1925]):
     # copy datasets
     employees_df = employee_df.copy()
     agencies_df = agency_df.copy()
@@ -28,7 +28,7 @@ async def geo_footprint(selected_countries, selected_cities, selected_districts,
         start = max(record["Career Start Year"], time_period_start_year)
         end = min(record["Career End Year"], time_period_end_year)
 
-        for year in range(int(start), int(end)+1):
+        for year in range(int(start), int(end) + 1):
             employee_records.append({"Agency": record["Agency"], "Year": year, "ID": record["ID"]})
     records_df = pd.DataFrame(employee_records, columns=["Agency", "Year", "ID"]).drop_duplicates(subset=["Agency", "Year", "ID"])
 

@@ -5,7 +5,7 @@ from utils.filter import filter
 from controllers.filter_parameters import religions
 from services.data_loader import employee_df
 
-async def religion_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
+async def religion_count(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=True):
     # copy dataset
     df = employee_df.copy()
 
@@ -43,7 +43,7 @@ async def religion_count(selected_countries, selected_cities, selected_districts
 
     return religion_counts
 
-async def religion_distribution(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=False):
+async def religion_distribution(selected_countries, selected_cities, selected_districts, selected_functions, selected_ids, selected_time_period: list = [1855, 1925], end_inclusive: bool=True):
     # copy dataset
     df = employee_df.copy()
 

@@ -73,7 +73,8 @@ def theme(fig, legend_location="top"):
         legend=legend,
         paper_bgcolor="#EFEBD6",
         plot_bgcolor="#EFEBD6",
-        margin={"l": 25, "r": 25, "t": 100, "b": 25}
+        margin={"l": 25, "r": 25, "t": 100, "b": 25},
+        newshape_line_color="#008DC5"
     )
 
 def error(type: Literal["server", "chart"]):
@@ -326,7 +327,8 @@ def scatter(df, x_col, y_col, title, x_title, y_title, hover_cols=None):
         yaxis_title=y_title,
     )
 
-    theme(fig)  
+    theme(fig)
+
     return fig
 
 def geo(nodes, edges):
@@ -389,7 +391,7 @@ def geo(nodes, edges):
 
 def combine(figures_y_left: list, figures_y_right: list, x_label, y_labels, title, legend_location: Literal["top", "left", "right"]="top"):
     if all(figure is None or isinstance(figure, str) for figure in figures_y_left + figures_y_right):
-        return error((figures_y_left + figures_y_right)[0])
+        return (figures_y_left + figures_y_right)[0]
     
     is_there_second_y_label = len(figures_y_right) != 0
     
@@ -422,21 +424,37 @@ def graph(figure):
         return dcc.Graph(
             figure=error("server"),
             className="graph",
-            config={'responsive': True}
+            config={
+                "responsive": True,
+                "staticPlot": True
+            }
         )
 
     elif isinstance(figure, str):
         return dcc.Graph(
             figure=error("chart"),
             className="graph",
-            config={'responsive': True}
+            config={
+                "responsive": True,
+                "staticPlot": True
+            }
         )
 
     elif isinstance(figure, go.Figure):
         return dcc.Graph(
             figure=figure,
             className="graph",
-            config={'responsive': True}
+            config={
+                "responsive": True,
+                "toImageButtonOptions": {
+                    "format": "svg",
+                    "filename": "plot"
+                },
+                "modeBarButtonsToAdd": [
+                    "drawopenpath",
+                    "eraseshape"
+                ]
+            }
         )
     
     elif isinstance(figure, list):

@@ -69,7 +69,7 @@ def section(title: str, description: str, graphs: dict=dict()):
         graph_component = dcc.Loading(
             html.Div(
                 id=figure_id,
-                className="figure-wrapper"
+                className="figure-frame"
             ),
             type="dot",
             color="#00487A",

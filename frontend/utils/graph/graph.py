@@ -131,7 +131,8 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="",
         x_label, y_label = y_label, x_label
 
     marker_colors = colors[color_index % len(colors)] if color_index >= 0 else sample_colorscale(colors, np.linspace(1, 0, len(df)))
-    fig = px.bar(df, x_label, y_label, title=title, orientation=orientation)
+    extra_cols = [c for c in df.columns if c not in {x_label, y_label}]
+    fig = px.bar(df, x_label, y_label, title=title, orientation=orientation, hover_data=extra_cols)
 
     theme(fig)
 

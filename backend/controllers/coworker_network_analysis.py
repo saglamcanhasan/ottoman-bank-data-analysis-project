@@ -61,7 +61,7 @@ async def coworker_network(selected_countries, selected_cities, selected_distric
     min_duration, max_duration = durations_df.min(), durations_df.max()
     duration_range = max_duration - min_duration if max_duration != min_duration else 1
     normalized_weights = (durations_df - min_duration) / duration_range
-    colors = sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], normalized_weights.tolist())
+    colors = sample_colorscale([[0, "#00587A"], [0.2, "#00487A"], [0.4, "#B08D57"], [0.6, "#7C0A02"],[0.8, "#300000"], [1, "#200000"]], normalized_weights.tolist())
     for index, id in enumerate(durations_df.index):
         links = int(connections_df[id])
         elements.append({

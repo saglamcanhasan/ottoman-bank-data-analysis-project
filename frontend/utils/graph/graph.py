@@ -1,9 +1,9 @@
 import numpy as np
+from dash import dcc
 from typing import Literal
 import plotly.express as px
 import dash_cytoscape as cyto
 import plotly.graph_objects as go
-from dash import html, dcc, dash_table
 from plotly.subplots import make_subplots
 from plotly.colors import sample_colorscale
 
@@ -129,7 +129,7 @@ def bar(df, x_label, y_label, title, color_index=0, orientation="v", x_title="",
     if orientation == "h":
         x_label, y_label = y_label, x_label
 
-    marker_colors = colors[color_index % len(colors)] if color_index >= 0 else sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], np.linspace(1, 0, len(df)))
+    marker_colors = colors[color_index % len(colors)] if color_index >= 0 else sample_colorscale(colors, np.linspace(1, 0, len(df)))
     fig = px.bar(df, x_label, y_label, title=title, orientation=orientation)
 
     theme(fig)
@@ -158,7 +158,7 @@ def pie(df, title):
     names = df.columns.tolist()
     values = df.iloc[0].values.tolist()
 
-    pie_colors =  sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], np.linspace(1, 0, len(names)))
+    pie_colors =  sample_colorscale(colors, np.linspace(1, 0, len(names)))
     fig = px.pie(df, names, values, title=title, color_discrete_sequence=pie_colors)
 
     theme(fig, "left")
@@ -175,7 +175,7 @@ def gantt(df, x_label, y_label, title):
         x_end="ends", 
         y="tasks",    
         color="colors",
-        color_discrete_sequence=colors,
+        color_discrete_sequence=sample_colorscale(colors, np.linspace(1, 0, len(np.unique(df["tasks"]))))[::-1],
         hover_name="hovertexts",
         title=title,
     )
@@ -190,6 +190,10 @@ def gantt(df, x_label, y_label, title):
 
     fig.update_traces(
         hovertemplate="%{hovertext}<extra></extra>"
+    )
+
+    fig.update_yaxes(
+        autorange="reversed"
     )
 
     return fig
@@ -237,7 +241,8 @@ def table(df, title):
 
     # create the table trace
     table_trace = go.Table(
-        header=dict(values=list(df.columns),
+        header=dict(
+            values=list(df.columns),
             fill_color=colors[6],
             align="center",
             font=dict(color="#EFEBD6"),
@@ -245,7 +250,7 @@ def table(df, title):
         ),
         cells=dict(
             values=[df[col] for col in df.columns],
-            fill_color="#EFEBD6",
+            fill_color=[["#EFEBD6", "#DBD7BB"]*(len(df)//2 + 1)],
             align="center",
             line=dict(color=colors[4], width=2)
         )
@@ -253,7 +258,10 @@ def table(df, title):
 
     fig = go.Figure(data=[table_trace])
 
-    fig.update_layout(title=title)
+    fig.update_layout(
+        title=title
+    )
+
     theme(fig) 
 
     return fig
@@ -430,9 +438,6 @@ def graph(figure):
             className="graph",
             config={'responsive': True}
         )
-    
-    elif isinstance(figure, dash_table.DataTable):
-        return figure
     
     elif isinstance(figure, list):
         return cyto.Cytoscape(

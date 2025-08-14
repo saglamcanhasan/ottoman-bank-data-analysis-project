@@ -56,10 +56,10 @@ async def employee_profiles(selected_countries, selected_cities, selected_distri
         # prepare the profile data
         profiles.append({
             "ID": id,
-            "Agency": ';\n'.join(agencies),
+            "Agency": '; '.join(agencies),
             "Active Period": active_period,
-            "Function": ',\n'.join(functions),
-            "Religion": ',\n'.join(religions),
+            "Function": ', '.join(functions),
+            "Religion": ', '.join(religions),
         })
     
     profile_df = pd.DataFrame(profiles)

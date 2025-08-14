@@ -30,4 +30,4 @@ def layout():
     ]
     
 create_figure_callback(lambda **kwargs: request("employee-profiles", **kwargs), lambda df: graph(table(df, "Employee Profile Card")), "profile-card", True, True, True, True, True, filter_id="profile-card")
-create_figure_callback(lambda **kwargs: request("career-timeline", **kwargs), lambda df: graph(gantt(df, "Years", "Agencies", "Employee Career Timeline by Agency")), "career-timeline", True, True, True, True, True, filter_id="profile-card")
+create_figure_callback(lambda **kwargs: request("career-timeline", **kwargs), lambda df: graph(gantt(df, "Years", "Employees", "Employee Career Timeline by Agency")), "career-timeline", True, True, True, True, True, filter_id="profile-card")

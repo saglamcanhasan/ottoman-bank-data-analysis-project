@@ -50,7 +50,7 @@ async def employee_transfers(selected_countries, selected_cities, selected_distr
     min_transfers, max_transfers = agencies_df["Total Transfers"].min(), agencies_df["Total Transfers"].max()
     transfers_range = max_transfers - min_transfers if max_transfers != min_transfers else 1
     normalized_weights = (agencies_df["Total Transfers"] - min_transfers) / transfers_range
-    colors = sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], normalized_weights.tolist())
+    colors = sample_colorscale([[0, "#00587A"], [0.2, "#00487A"], [0.4, "#B08D57"], [0.6, "#7C0A02"],[0.8, "#300000"], [1, "#200000"]], normalized_weights.tolist())
     for index, agency in enumerate(agencies_df.index):
         elements.append({
             "data": {
@@ -137,7 +137,7 @@ async def employee_flow(selected_countries, selected_cities, selected_districts,
         "nodes": nodes,
         "node_customdata": list(zip(agencies, incoming_df.loc[agencies].values, outgoing_df.loc[agencies].values)),
         "node_hovertemplate": "%{customdata[0]}<br>Incoming: %{customdata[1]}<br>Outgoing: %{customdata[2]}",
-        "colors": sample_colorscale([[0, "#B08D57"], [0.5, "#7C0A02"], [1, "#200000"]], normalized_weights.tolist()),
+        "colors": sample_colorscale([[0, "#00587A"], [0.2, "#00487A"], [0.4, "#B08D57"], [0.6, "#7C0A02"],[0.8, "#300000"], [1, "#200000"]], normalized_weights.tolist()),
         "sources": transfers_df["Source"].map(agency_to_idx).tolist(),
         "targets": transfers_df["Target"].map(agency_to_idx).tolist(),
         "values": transfers_df["Count"].tolist(),

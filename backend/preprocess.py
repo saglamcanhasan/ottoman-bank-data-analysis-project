@@ -771,7 +771,62 @@ def locate_agencies(agency_df):
 
     return agency_df
 
+def extract_connections(employee_df):
+    # drop unnecessary columns and duplicates
+    employee_df = employee_df[["Agency", "ID", "Period Start Year", "Period End Year"]].drop_duplicates()
+
+    # couple employees on agency
+    employee_df = employee_df.merge(employee_df, on="Agency", how="inner", suffixes=(" Left", " Right"))
+
+    # ensure no duplicate couples
+    employee_df = employee_df[employee_df["ID Left"] < employee_df["ID Right"]]
+    
+    # filter non-intersecting periods
+    mask = (employee_df["Period Start Year Left"] <= (employee_df["Period End Year Right"])) & (employee_df["Period Start Year Right"] <= (employee_df["Period End Year Left"]))
+    employee_df = employee_df[mask]
+
+    # find overlaps
+    employee_df["Period Start Year"] = employee_df[["Period Start Year Left", "Period Start Year Right"]].max(axis=1)
+    employee_df["Period End Year"] =  employee_df[["Period End Year Left", "Period End Year Right"]].min(axis=1)
+    employee_df = employee_df.drop(columns=["Period Start Year Left", "Period End Year Left", "Period Start Year Right", "Period End Year Right"])
+
+    # connect overlaping intervals
+    employee_df = employee_df.sort_values(["Period Start Year", "Period End Year"])
+    employee_df["Previous Period End Year"] = employee_df.groupby(["ID Left", "ID Right"])["Period End Year"].shift()
+    employee_df["First Period of Group"] = (employee_df["Period Start Year"] > employee_df["Previous Period End Year"]).astype(int)
+    employee_df["Group Number"] = employee_df.groupby(["ID Left", "ID Right"])["First Period of Group"].cumsum()
+    employee_df = employee_df.groupby(["ID Left", "ID Right", "Group Number"], as_index=False).agg({"Period Start Year": "min", "Period End Year": "max"})
+    employee_df = employee_df.drop(columns=["Group Number"])
+    
+    # calculate durations
+    employee_df["Duration"] = employee_df["Period End Year"] - employee_df["Period Start Year"]
+
+    # rename columns
+    connection_df = employee_df.rename(columns={"ID Left": "First Employee", "ID Right": "Second Employee"})
+
+    return connection_df
+
+def extract_transfers(employee_df: pd.DataFrame):
+    # drop employees with missing start year
+    df = employee_df.dropna(subset=["Career Start Year"])
+
+    # find transfers
+    transfers = list()
+    for _, group in df.groupby("ID"):
+        # iterate over consecutive pairs to find transfers
+        group = group.sort_values(by=["Period Start Year", "Period End Year"])
+        for index in range(len(group) - 1):
+            source_record = group.iloc[index]
+            target_record = group.iloc[index+1]
+            if source_record["Agency"] != target_record["Agency"]:
+                transfers.append({"Source": source_record["Agency"], "Target": target_record["Agency"], "Year": target_record["Period Start Year"], "Count": 1})
+
+    transfers_df = pd.DataFrame(transfers, columns=["Source", "Target", "Year"]).value_counts().reset_index(name="Count")
+
+    return transfers_df
+
 def sort(employee_df, agency_df):
+
     employee_df.sort_values(by=["ID", "Record Year"], ignore_index=True, inplace=True)
     agency_df.sort_values(by=["Opening Year", "Agency"], ignore_index=True, inplace=True)
 
@@ -791,17 +846,21 @@ def preprocess(employee_df, agency_df):
     employee_df, agency_df = generate_agency(employee_df, agency_df)
     agency_df = extract_agency(employee_df, agency_df)
     agency_df = locate_agencies(agency_df)
+    connection_df = extract_connections(employee_df)
+    transfer_df = extract_transfers(employee_df)
     employee_df, agency_df = sort(employee_df, agency_df)
 
-    return employee_df, agency_df
+    return employee_df, agency_df, connection_df, transfer_df
 
 # load datasets
 employee_df = pd.read_excel(join("datasets", "employees_raw.xlsx"))
 agency_df = pd.read_excel(join("datasets", "agencies_raw.xlsx"))
 
 # preprocess
-employee_df, agency_df = preprocess(employee_df, agency_df)
+employee_df, agency_df, connection_df, transfer_df = preprocess(employee_df, agency_df)
 
 # save datasets
-employee_df.to_excel(join("datasets", "employees_preprocessed.xlsx"), index=False)
-agency_df.to_excel(join("datasets", "agencies_preprocessed.xlsx"), index=False)
+employee_df.to_csv(join("datasets", "employees_preprocessed.csv"), index=False)
+agency_df.to_csv(join("datasets", "agencies_preprocessed.csv"), index=False)
+connection_df.to_csv(join("datasets", "connections_preprocessed.csv"), index=False)
+transfer_df.to_csv(join("datasets", "transfers_preprocessed.csv"), index=False)
